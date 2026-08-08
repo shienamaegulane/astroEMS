@@ -13,7 +13,12 @@ namespace astroEMS.Controllers
 
         private static readonly string[] RequiredDocumentTypes =
         {
-            "Resume", "SSS", "PhilHealth", "Pag-IBIG", "BIR Form 1902", "Contract"
+            "Resume", 
+            "SSS", 
+            "PhilHealth", 
+            "Pag-IBIG", 
+            "BIR Form 1902", 
+            "Contract"
         };
 
         public ProfileController(AppDbContext context)
