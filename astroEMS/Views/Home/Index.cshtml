@@ -1,0 +1,108 @@
+﻿@model astroEMS.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="mb-4">
+    <h3 class="mb-0">Operations Overview</h3>
+    <p class="text-muted">A summary view for HR, Admin covering employees and requests. @DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Total Employees</div>
+                <div class="fs-3 fw-bold text-navy">@Model.TotalEmployees</div>
+                <div class="text-muted small">Across all departments</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Active Employees</div>
+                <div class="fs-3 fw-bold text-success">@Model.ActiveEmployees</div>
+                <div class="text-muted small">Currently employed</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Probationary</div>
+                <div class="fs-3 fw-bold" style="color:#F9A825;">@Model.ProbationaryEmployees</div>
+                <div class="text-muted small">Under evaluation</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Present Today</div>
+                <div class="fs-3 fw-bold text-muted">—</div>
+                <div class="text-muted small">Coming with Attendance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Late Today</div>
+                <div class="fs-3 fw-bold text-muted">—</div>
+                <div class="text-muted small">Coming with Attendance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Pending COE</div>
+                <div class="fs-3 fw-bold" style="color:#C9A227;">@Model.PendingCOERequests</div>
+                <div class="text-muted small">Awaiting HR review</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">Department Overview</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color:#F5F7FA;">
+                        <tr>
+                            <th class="ps-4">Department</th>
+                            <th>Employees</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.DepartmentBreakdown)
+                        {
+                            <tr>
+                                <td class="ps-4">@d.Department</td>
+                                <td>@d.Count</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Latest Announcements</span>
+            </div>
+            <div class="card-body">
+                <h6 class="fw-semibold">Welcome to Astro EMS</h6>
+                <p class="text-muted small mb-0">
+                    This is a placeholder announcement. A full Announcements feature
+                    (post/edit/delete company-wide notices) can be added here later.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

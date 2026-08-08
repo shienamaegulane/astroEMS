@@ -1,0 +1,61 @@
+﻿@model IEnumerable<astroEMS.Models.Attendance>
+@{
+    ViewData["Title"] = "My Attendance Record";
+}
+
+<h3 class="mb-1"><i class="bi bi-calendar-check me-2"></i>My Attendance Record</h3>
+<p class="text-muted mb-4">Showing records from @ViewBag.StartDate to @ViewBag.EndDate</p>
+
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form asp-action="MyRecord" method="get" class="d-flex gap-2 align-items-center">
+            <label class="mb-0 small text-muted">From</label>
+            <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control form-control-sm" style="max-width:170px;" />
+            <label class="mb-0 small text-muted">To</label>
+            <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control form-control-sm" style="max-width:170px;" />
+            <button type="submit" class="btn btn-sm btn-primary">Search</button>
+            <a asp-action="MyRecord" class="btn btn-sm btn-outline-secondary">Reset to Current Period</a>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">No attendance records found for this period.</td>
+                    </tr>
+                }
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td class="ps-4">@a.AttendanceDate.ToString("dddd, MMM dd, yyyy")</td>
+                        <td>@(a.TimeIn.HasValue ? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
+                        <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
+                        <td>
+                            @{
+                                string cls = a.Status switch { "Present" => "badge-active", "Late" => "badge-late", _ => "badge-absent" };
+                            }
+                            <span class="badge @cls">@a.Status</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">
+    <i class="bi bi-arrow-left"></i> Back to My Profile
+</a>

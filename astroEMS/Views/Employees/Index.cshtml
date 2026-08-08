@@ -1,0 +1,108 @@
+@model IEnumerable<astroEMS.Models.Employee>
+
+@{
+    ViewData["Title"] = "Employees";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-0"><i class="bi bi-people me-2"></i>Employees</h3>
+        <p class="text-muted mb-0">@Model.Count() total employee@(Model.Count() != 1 ? "s" : "")</p>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+    {
+        <a asp-action="Create" class="btn btn-gold">
+            <i class="bi bi-plus-lg"></i> Add Employee
+        </a>
+    }
+</div>
+
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form asp-action="Index" method="get" class="d-flex gap-2 align-items-center">
+            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                   class="form-control form-control-sm" placeholder="Search by name, department, position, employee no..." style="max-width: 350px;" />
+            <button type="submit" class="btn btn-sm btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Clear
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Employee</th>
+                    <th>Employee No.</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Date Hired</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width:38px;height:38px;background-color:#1B3B6F;color:white;font-size:0.8rem;font-weight:600;">
+                                    @item.FirstName[0]@item.LastName[0]
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@item.FirstName @item.LastName</div>
+                                    <div class="text-muted small">@item.Email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@item.EmployeeNumber</td>
+                        <td>@item.Department</td>
+                        <td>@item.Position</td>
+                        <td>@item.DateHired.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            @{
+                                string badgeClass = item.EmploymentStatus switch
+                                {
+                                    "Active" => "badge-active",
+                                    "On Leave" => "badge-late",
+                                    _ => "badge-absent"
+                                };
+                            }
+                            <span class="badge @badgeClass">@item.EmploymentStatus</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a asp-action="Details" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-secondary" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+                            {
+                                <a asp-action="Edit" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                <a asp-controller="Documents" asp-action="Index" asp-route-employeeId="@item.EmployeeID" class="btn btn-sm btn-outline-secondary" title="Documents">
+                                    <i class="bi bi-folder2-open"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

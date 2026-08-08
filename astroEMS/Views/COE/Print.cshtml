@@ -1,0 +1,104 @@
+﻿@model astroEMS.Models.COERequest
+@{
+    Layout = null; // no sidebar/layout - clean printable page
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certificate of Employment</title>
+    <style>
+            body {
+                font-family: 'Times New Roman', serif;
+                padding: 60px;
+                color: #1a1a1a;
+                line-height: 1.8;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 50px;
+            }
+
+                .header h1 {
+                    margin: 0;
+                    color: #0A2540;
+                    letter-spacing: 1px;
+                }
+
+                .header p {
+                    margin: 2px 0;
+                    color: #555;
+                    font-size: 0.9rem;
+                }
+
+            .title {
+                text-align: center;
+                font-size: 1.4rem;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 40px 0;
+            }
+
+            .body-text {
+                font-size: 1.05rem;
+                text-align: justify;
+                margin-bottom: 60px;
+            }
+
+            .signature {
+                margin-top: 80px;
+            }
+
+                .signature .line {
+                    border-top: 1px solid #000;
+                    width: 250px;
+                    margin-top: 60px;
+                }
+
+            .print-btn {
+                margin-bottom: 30px;
+            }
+
+            @@media print {
+                .print-btn {
+                    display: none;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="print-btn">
+        <button onclick="window.print()">🖨️ Print this Certificate</button>
+    </div>
+
+    <div class="header">
+        <h1>ASTRO SHIPMANAGEMENT, INC.</h1>
+        <p>6F Skyrise 1 Bldg., Cebu IT Park, Apas, Cebu City</p>
+        <p>Tel: (032) XXX-XXXX | www.e-astroships.com</p>
+    </div>
+
+    <div class="title">CERTIFICATE OF EMPLOYMENT</div>
+
+    <div class="body-text">
+        <p>TO WHOM IT MAY CONCERN:</p>
+        <p>
+            This is to certify that <strong>@Model.Employee?.FirstName @Model.Employee?.MiddleName @Model.Employee?.LastName</strong>,
+            with Employee Number <strong>@Model.Employee?.EmployeeNumber</strong>, is/was a
+            <strong>@Model.Employee?.EmploymentType</strong> employee of Astro Shipmanagement, Inc., holding the position of
+            <strong>@Model.Employee?.Position</strong> under the <strong>@Model.Employee?.Department</strong> Department,
+            from <strong>@Model.Employee?.DateHired.ToString("MMMM dd, yyyy")</strong> up to present.
+        </p>
+        <p>
+            This certification is issued upon the request of the above-named employee for
+            <strong>@Model.Purpose</strong> purposes.
+        </p>
+        <p>Issued this @Model.DateProcessed?.ToString("dd") day of @Model.DateProcessed?.ToString("MMMM, yyyy") at Cebu City, Philippines.</p>
+    </div>
+
+    <div class="signature">
+        <p>_______________________________</p>
+        <div class="line"></div>
+        <p><strong>HR Department</strong><br />Astro Shipmanagement, Inc.</p>
+    </div>
+</body>
+</html>

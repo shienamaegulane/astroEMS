@@ -1,0 +1,43 @@
+﻿@model IEnumerable<astroEMS.Models.Attendance>
+@{
+    ViewData["Title"] = "Attendance Details";
+    var employee = ViewBag.Employee as astroEMS.Models.Employee;
+}
+
+<h3 class="mb-1"><i class="bi bi-calendar-check me-2"></i>Attendance Details</h3>
+<p class="text-muted mb-4">@employee?.FirstName @employee?.LastName (@employee?.EmployeeNumber) &bull; @ViewBag.StartDate – @ViewBag.EndDate</p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td class="ps-4">@a.AttendanceDate.ToString("dddd, MMM dd, yyyy")</td>
+                        <td>@(a.TimeIn.HasValue ? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
+                        <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
+                        <td>
+                            @{
+                                string cls = a.Status switch { "Present" => "badge-active", "Late" => "badge-late", _ => "badge-absent" };
+                            }
+                            <span class="badge @cls">@a.Status</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a asp-action="Summary" class="btn btn-outline-secondary btn-sm mt-3">
+    <i class="bi bi-arrow-left"></i> Back to Summary
+</a>

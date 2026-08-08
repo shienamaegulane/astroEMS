@@ -1,0 +1,131 @@
+﻿@model astroEMS.Models.Payslip
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payslip</title>
+    <style>
+            body {
+                font-family: 'Segoe UI', sans-serif;
+                padding: 40px;
+                color: #1a1a1a;
+                max-width: 600px;
+                margin: auto;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+                .header h2 {
+                    margin: 0;
+                    color: #0A2540;
+                }
+
+                .header p {
+                    margin: 2px 0;
+                    color: #555;
+                    font-size: 0.85rem;
+                }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            td {
+                padding: 6px 4px;
+                font-size: 0.9rem;
+            }
+
+            .section-title {
+                font-weight: bold;
+                background: #F5F7FA;
+                padding: 6px 8px;
+                margin-top: 15px;
+            }
+
+            .right {
+                text-align: right;
+            }
+
+            .total-row td {
+                border-top: 2px solid #333;
+                font-weight: bold;
+                padding-top: 8px;
+            }
+
+            .net-pay {
+                background: #0A2540;
+                color: white;
+                padding: 12px;
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: bold;
+                border-radius: 6px;
+                margin-top: 15px;
+            }
+
+            .print-btn {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            @@media print {
+                .print-btn {
+                    display: none;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="print-btn"><button onclick="window.print()">🖨️ Print Payslip</button></div>
+
+    <div class="header">
+        <h2>ASTRO SHIPMANAGEMENT, INC.</h2>
+        <p>6F Skyrise 1 Bldg., Cebu IT Park, Apas, Cebu City</p>
+        <p>PAYSLIP</p>
+    </div>
+
+    <table>
+        <tr><td><strong>Employee:</strong></td><td class="right">@Model.Employee?.FirstName @Model.Employee?.LastName</td></tr>
+        <tr><td><strong>Employee No.:</strong></td><td class="right">@Model.Employee?.EmployeeNumber</td></tr>
+        <tr><td><strong>Department:</strong></td><td class="right">@Model.Employee?.Department</td></tr>
+        <tr><td><strong>Pay Period:</strong></td><td class="right">@Model.Period?.PeriodStart.ToString("MMM dd") - @Model.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td></tr>
+        <tr><td><strong>Pay Date:</strong></td><td class="right">@Model.Period?.PayDate.ToString("MMM dd, yyyy")</td></tr>
+    </table>
+
+    <div class="section-title">ATTENDANCE</div>
+    <table>
+        <tr><td>Present</td><td class="right">@Model.DaysPresent day(s)</td></tr>
+        <tr><td>Late</td><td class="right">@Model.DaysLate day(s) / @Model.TotalLateMinutes min</td></tr>
+        <tr><td>Absent</td><td class="right">@Model.DaysAbsent day(s)</td></tr>
+        <tr><td>Undertime</td><td class="right">@Model.TotalUndertimeMinutes min</td></tr>
+        <tr><td>Overtime</td><td class="right">@Model.TotalOvertimeHours.ToString("0.##") hrs</td></tr>
+    </table>
+
+    <div class="section-title">EARNINGS</div>
+    <table>
+        <tr><td>Basic Pay</td><td class="right">₱@Model.BasicPay.ToString("N2")</td></tr>
+        <tr><td>Overtime Pay</td><td class="right">₱@Model.OvertimePay.ToString("N2")</td></tr>
+        <tr class="total-row"><td>GROSS PAY</td><td class="right">₱@Model.GrossPay.ToString("N2")</td></tr>
+    </table>
+
+    <div class="section-title">DEDUCTIONS</div>
+    <table>
+        <tr><td>Late Deduction</td><td class="right">₱@Model.LateDeduction.ToString("N2")</td></tr>
+        <tr><td>Undertime Deduction</td><td class="right">₱@Model.UndertimeDeduction.ToString("N2")</td></tr>
+        <tr><td>SSS</td><td class="right">₱@Model.SSSDeduction.ToString("N2")</td></tr>
+        <tr><td>PhilHealth</td><td class="right">₱@Model.PhilHealthDeduction.ToString("N2")</td></tr>
+        <tr><td>Pag-IBIG</td><td class="right">₱@Model.PagIBIGDeduction.ToString("N2")</td></tr>
+        <tr><td>Withholding Tax</td><td class="right">₱@Model.WithholdingTax.ToString("N2")</td></tr>
+        <tr class="total-row"><td>TOTAL DEDUCTIONS</td><td class="right">₱@Model.TotalDeductions.ToString("N2")</td></tr>
+    </table>
+
+    <div class="net-pay">NET PAY: ₱@Model.NetPay.ToString("N2")</div>
+</body>
+</html>

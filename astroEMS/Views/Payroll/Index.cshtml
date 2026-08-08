@@ -1,0 +1,76 @@
+﻿@model IEnumerable<astroEMS.Models.PayrollPeriod>
+@{
+    ViewData["Title"] = "Payroll Periods";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<h3 class="mb-4"><i class="bi bi-cash-stack me-2"></i>Payroll Periods</h3>
+
+<div class="card mb-4" style="max-width:500px;">
+    <div class="card-header">Create New Payroll Period</div>
+    <div class="card-body">
+        <form asp-action="CreatePeriod" method="post">
+            <div class="mb-2">
+                <label class="form-label">Period Start</label>
+                <input type="date" name="periodStart" class="form-control" required />
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Period End</label>
+                <input type="date" name="periodEnd" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Pay Date</label>
+                <input type="date" name="payDate" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-gold">Create Period</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Period</th>
+                    <th>Pay Date</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td class="ps-4">@p.PeriodStart.ToString("MMM dd") - @p.PeriodEnd.ToString("MMM dd, yyyy")</td>
+                        <td>@p.PayDate.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <span class="badge @(p.Status == "Processed" ? "badge-active" : "badge-late")">@p.Status</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            @if (p.Status == "Open")
+                            {
+                                <form asp-action="Generate" method="post" class="d-inline">
+                                    <input type="hidden" name="periodId" value="@p.PeriodID" />
+                                    <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Generate payroll for this period?');">
+                                        <i class="bi bi-gear"></i> Generate Payroll
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a asp-action="Payslips" asp-route-periodId="@p.PeriodID" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View Payslips
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

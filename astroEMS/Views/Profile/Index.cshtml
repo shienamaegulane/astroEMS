@@ -1,0 +1,190 @@
+﻿@model astroEMS.Models.Employee
+@{
+    ViewData["Title"] = "My Profile";
+    var user = ViewBag.User as astroEMS.Models.User;
+    var today = ViewBag.TodayRecord as astroEMS.Models.Attendance;
+    var checklist = ViewBag.DocumentChecklist as IEnumerable<dynamic>;
+
+    int present = ViewBag.PresentCount;
+    int late = ViewBag.LateCount;
+    int absent = ViewBag.AbsentCount;
+    int total = ViewBag.TotalCount;
+    double presentPct = total > 0 ? (present * 100.0 / total) : 0;
+    double latePct = total > 0 ? (late * 100.0 / total) : 0;
+}
+
+<h2 class="mb-4">👤 Employee Profile</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3 text-center">
+        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+             style="width:110px; height:110px; color:white; font-size:1.8rem;">
+            @Model.FirstName[0]@Model.LastName[0]
+        </div>
+        <p class="mt-2 text-muted small">Change Photo (coming soon)</p>
+    </div>
+    <div class="col-md-9">
+        <h3 class="mb-0">@Model.FirstName @Model.LastName</h3>
+        <p class="text-muted">Employee ID: @Model.EmployeeNumber</p>
+    </div>
+</div>
+
+<div class="row">
+ 
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header"><strong>Personal Information</strong></div>
+            <div class="card-body">
+                <p><strong>Full Name:</strong> @Model.FirstName @Model.MiddleName @Model.LastName</p>
+                <p><strong>Gender:</strong> @Model.Gender</p>
+                <p><strong>Date of Birth:</strong> @Model.DateOfBirth?.ToString("MMMM dd, yyyy")</p>
+                <p><strong>Contact Number:</strong> @Model.ContactNumber</p>
+                <p><strong>Email Address:</strong> @Model.Email</p>
+                <p class="mb-0"><strong>Home Address:</strong> @Model.Address</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><strong>Employment Information</strong></div>
+            <div class="card-body">
+                <p><strong>Department:</strong> @Model.Department</p>
+                <p><strong>Position:</strong> @Model.Position</p>
+                <p><strong>Employment Status:</strong> @Model.EmploymentStatus</p>
+                <p><strong>Employment Type:</strong> @Model.EmploymentType</p>
+                <p class="mb-0"><strong>Date Hired:</strong> @Model.DateHired.ToString("MMMM dd, yyyy")</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><strong>Account Information</strong></div>
+            <div class="card-body">
+                <p><strong>Username:</strong> @(user?.Username ?? "N/A")</p>
+                <p><strong>User Role:</strong> @(user?.Role ?? "N/A")</p>
+                <p class="mb-0"><strong>Account Status:</strong> @(user != null && user.IsActive ? "Active" : "Inactive")</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header"><strong>Attendance Information</strong></div>
+            <div class="card-body">
+                <p><strong>Work Schedule:</strong> @Model.WorkSchedule</p>
+                <p><strong>Time In:</strong> @(today?.TimeIn != null ? DateTime.Today.Add(today.TimeIn.Value).ToString("h:mm tt") : "—")</p>
+                <p><strong>Time Out:</strong> @(today?.TimeOut != null ? DateTime.Today.Add(today.TimeOut.Value).ToString("h:mm tt") : "—")</p>
+                <p class="mb-0">
+                    <strong>Today's Status:</strong>
+                    @if (today == null)
+                    {
+                        <span class="badge bg-secondary">No Record</span>
+                    }
+                    else
+                    {
+                        string tCls = today.Status switch { "Present" => "badge-active", "Late" => "badge-late", _ => "badge-absent" };
+                        <span class="badge @tCls">@today.Status</span>
+                    }
+                </p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><strong>Attendance Summary</strong></div>
+            <div class="card-body">
+                @if (total == 0)
+                {
+                    <p class="text-muted mb-0">No attendance records yet.</p>
+                }
+                else
+                {
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="donut-chart" style="background: conic-gradient(
+                            #2E7D32 0% @presentPct.ToString("0.##")%,
+                            #F9A825 @presentPct.ToString("0.##")% @((presentPct + latePct).ToString("0.##"))%,
+                            #C62828 @((presentPct + latePct).ToString("0.##"))% 100%
+                            );">
+                            <div class="donut-center">@total</div>
+                        </div>
+                        <div>
+                            <p class="mb-1"><span class="dot" style="background:#2E7D32;"></span> Present: <strong>@present</strong></p>
+                            <p class="mb-1"><span class="dot" style="background:#F9A825;"></span> Late: <strong>@late</strong></p>
+                            <p class="mb-0"><span class="dot" style="background:#C62828;"></span> Absent: <strong>@absent</strong></p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><strong>Document Information</strong></div>
+            <div class="card-body">
+                <div class="doc-info-row">
+                    <span class="doc-label">SSS Number</span>
+                    <span class="doc-value">@(string.IsNullOrEmpty(Model.SSSNumber) ? "—" : Model.SSSNumber)</span>
+                    @if (!string.IsNullOrEmpty(Model.SSSNumber))
+                    {
+                        <span class="badge badge-active doc-badge">Valid</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-absent doc-badge">Missing</span>
+                    }
+                </div>
+                <div class="doc-info-row">
+                    <span class="doc-label">PhilHealth Number</span>
+                    <span class="doc-value">@(string.IsNullOrEmpty(Model.PhilHealthNumber) ? "—" : Model.PhilHealthNumber)</span>
+                    @if (!string.IsNullOrEmpty(Model.PhilHealthNumber))
+                    {
+                        <span class="badge badge-active doc-badge">Valid</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-absent doc-badge">Missing</span>
+                    }
+                </div>
+                <div class="doc-info-row">
+                    <span class="doc-label">Pag-IBIG Number</span>
+                    <span class="doc-value">@(string.IsNullOrEmpty(Model.PagIBIGNumber) ? "—" : Model.PagIBIGNumber)</span>
+                    @if (!string.IsNullOrEmpty(Model.PagIBIGNumber))
+                    {
+                        <span class="badge badge-active doc-badge">Valid</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-absent doc-badge">Missing</span>
+                    }
+                </div>
+                <div class="doc-info-row">
+                    <span class="doc-label">TIN Number</span>
+                    <span class="doc-value">@(string.IsNullOrEmpty(Model.TINNumber) ? "—" : Model.TINNumber)</span>
+                    @if (!string.IsNullOrEmpty(Model.TINNumber))
+                    {
+                        <span class="badge badge-active doc-badge">Valid</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-absent doc-badge">Missing</span>
+                    }
+                </div>
+
+                <a asp-controller="Documents" asp-action="Index" class="btn btn-outline-primary btn-sm w-100 mt-3">
+                    View All Documents
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a asp-controller="Employees" asp-action="Edit" asp-route-employeeid="@Model.EmployeeID" class="btn btn-primary btn-sm">Edit Profile</a>
+    <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-key"></i> Change Password
+    </a>
+    <a asp-controller="COE" asp-action="MyRequests" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-file-earmark-text"></i> Request COE
+    </a>
+    <a asp-controller="Attendance" asp-action="MyRecord" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-calendar-check"></i> View Attendance Record
+    </a>
+    <a href="#" class="btn btn-outline-secondary btn-sm disabled">Generate Attendance Report</a>
+</div>

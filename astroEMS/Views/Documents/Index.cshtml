@@ -1,0 +1,137 @@
+﻿@model IEnumerable<astroEMS.Models.EmployeeDocument>
+@{
+    ViewData["Title"] = "Employee Documents";
+    var employee = ViewBag.Employee as astroEMS.Models.Employee;
+    var checklist = ViewBag.Checklist as IEnumerable<dynamic>;
+    var allTypes = ViewBag.AllDocumentTypes as List<string>;
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h3 class="mb-1"><i class="bi bi-folder2-open me-2"></i>Employee Documents</h3>
+<p class="text-muted mb-1">Employee ID: @employee?.EmployeeNumber</p>
+<p class="text-muted mb-4">@employee?.FirstName @employee?.LastName &bull; @employee?.Department</p>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card mb-4">
+            <div class="card-header">Document Checklist</div>
+            <div class="list-group list-group-flush">
+                @foreach (var item in checklist!)
+                {
+                    bool uploaded = item.Document != null;
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            @if (uploaded)
+                            {
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                            }
+                            <strong>@item.Type</strong>
+                            @if (!uploaded)
+                            {
+                                <span class="text-muted small"> (Not Uploaded)</span>
+                            }
+                            @if (uploaded && !string.IsNullOrEmpty(item.Document.Remarks))
+                            {
+                                <div class="text-muted small ms-4">@item.Document.Remarks</div>
+                            }
+                        </div>
+                        @if (uploaded)
+                        {
+                            <a href="@item.Document.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+        {
+            <div class="card mb-4">
+                <div class="card-header">Upload Document</div>
+                <div class="card-body">
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="employeeId" value="@employee?.EmployeeID" />
+                        <div class="mb-3">
+                            <label class="form-label">Document Type</label>
+                            <select name="documentType" class="form-select" required>
+                                <option value="">-- Select Type --</option>
+                                @foreach (var type in allTypes!)
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Choose File</label>
+                            <input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.docx" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Remarks (optional)</label>
+                            <input type="text" name="remarks" class="form-control" placeholder="e.g. Received July 15, 2026" />
+                        </div>
+                        <button type="submit" class="btn btn-gold w-100"><i class="bi bi-upload"></i> Upload</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (User.IsInRole("Admin") || User.IsInRole("HR"))
+{
+    <div class="card">
+        <div class="card-header">All Uploaded Files (Full History)</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color:#F5F7FA;">
+                    <tr>
+                        <th class="ps-4">Type</th>
+                        <th>File Name</th>
+                        <th>Remarks</th>
+                        <th>Uploaded</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var doc in Model)
+                    {
+                        <tr>
+                            <td class="ps-4"><span class="badge bg-secondary">@doc.DocumentType</span></td>
+                            <td>@doc.FileName</td>
+                            <td class="text-muted small">@doc.Remarks</td>
+                            <td>@doc.UploadedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end pe-4">
+                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <form asp-action="Delete" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@doc.DocumentID" />
+                                    <input type="hidden" name="employeeId" value="@employee?.EmployeeID" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this document?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

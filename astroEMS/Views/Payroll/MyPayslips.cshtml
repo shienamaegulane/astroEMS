@@ -1,0 +1,38 @@
+﻿@model IEnumerable<astroEMS.Models.Payslip>
+@{
+    ViewData["Title"] = "My Payslips";
+}
+
+<h3 class="mb-4"><i class="bi bi-cash-stack me-2"></i>My Payslips</h3>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Pay Period</th>
+                    <th>Net Pay</th>
+                    <th class="text-end pe-4">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="3" class="text-center text-muted py-4">No payslips yet.</td></tr>
+                }
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td class="ps-4">@p.Period?.PeriodStart.ToString("MMM dd") - @p.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td>
+                        <td class="fw-semibold">₱@p.NetPay.ToString("N2")</td>
+                        <td class="text-end pe-4">
+                            <a asp-action="View" asp-route-id="@p.PayslipID" class="btn btn-sm btn-outline-primary" target="payslipWindow">
+                                <i class="bi bi-eye"></i> View / Print
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,125 @@
+@model astroEMS.Models.Employee
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="EmployeeID" />
+            <div class="form-group">
+                <label asp-for="EmployeeNumber" class="control-label"></label>
+                <input asp-for="EmployeeNumber" class="form-control" />
+                <span asp-validation-for="EmployeeNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MiddleName" class="control-label"></label>
+                <input asp-for="MiddleName" class="form-control" />
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label>
+                <input asp-for="Gender" class="form-control" />
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateOfBirth" class="control-label"></label>
+                <input asp-for="DateOfBirth" class="form-control"type="date" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactNumber" class="control-label"></label>
+                <input asp-for="ContactNumber" class="form-control" />
+                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Department" class="control-label"></label>
+                <input asp-for="Department" class="form-control" />
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Position" class="control-label"></label>
+                <input asp-for="Position" class="form-control" />
+                <span asp-validation-for="Position" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateHired" class="control-label"></label>
+                <input asp-for="DateHired" class="form-control" type="date"/>
+                <span asp-validation-for="DateHired" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmploymentStatus" class="control-label"></label>
+                <input asp-for="EmploymentStatus" class="form-control" />
+                <span asp-validation-for="EmploymentStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmploymentType" class="control-label"></label>
+                <input asp-for="EmploymentType" class="form-control" />
+                <span asp-validation-for="EmploymentType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BasicSalary" class="control-label"></label>
+                <input asp-for="BasicSalary" class="form-control" />
+                <span asp-validation-for="BasicSalary" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SSSNumber" class="control-label"></label>
+                <input asp-for="SSSNumber" class="form-control" />
+                <span asp-validation-for="SSSNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhilHealthNumber" class="control-label"></label>
+                <input asp-for="PhilHealthNumber" class="form-control" />
+                <span asp-validation-for="PhilHealthNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PagIBIGNumber" class="control-label"></label>
+                <input asp-for="PagIBIGNumber" class="form-control" />
+                <span asp-validation-for="PagIBIGNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TINNumber" class="control-label"></label>
+                <input asp-for="TINNumber" class="form-control" />
+                <span asp-validation-for="TINNumber" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="DateCreated"/>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

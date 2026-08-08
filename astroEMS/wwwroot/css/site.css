@@ -1,0 +1,355 @@
+:root {
+    --navy: #0A2540;
+    --steel: #1B3B6F;
+    --gold: #C9A227;
+    --bg: #F5F7FA;
+    --text: #1F2937;
+    --text-muted: #6B7280;
+    --success: #2E7D32;
+    --warning: #F9A825;
+    --danger: #C62828;
+    --white: #FFFFFF;
+    --sidebar-width: 240px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, .navbar-brand {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--navy);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 1rem;
+}
+
+    .sidebar-brand .icon {
+        font-size: 1.5rem;
+        color: var(--gold);
+    }
+
+    .sidebar-brand span {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--white);
+    }
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+    .sidebar-nav li a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        color: rgba(255,255,255,0.75);
+        text-decoration: none;
+        font-size: 0.95rem;
+        border-left: 3px solid transparent;
+        transition: all 0.15s ease;
+    }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: rgba(255,255,255,0.06);
+            color: var(--white);
+            border-left: 3px solid var(--gold);
+        }
+
+.sidebar-footer {
+    padding: 0 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1rem;
+}
+
+    .sidebar-footer a {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+        text-decoration: none;
+    }
+
+/* ---------- MAIN CONTENT ---------- */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+.topbar {
+    background: var(--white);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+    .topbar .greeting {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .topbar .role-badge {
+        background: var(--gold);
+        color: var(--navy);
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        margin-left: 0.5rem;
+    }
+
+.page-content {
+    padding: 2rem;
+}
+
+/* ---------- CARDS ---------- */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.card-header {
+    background-color: var(--white);
+    border-bottom: 1px solid #eef0f2;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: var(--navy);
+    padding: 1rem 1.25rem;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-primary {
+    background-color: var(--navy);
+    border-color: var(--navy);
+}
+
+    .btn-primary:hover {
+        background-color: var(--steel);
+        border-color: var(--steel);
+    }
+
+.btn-gold {
+    background-color: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy);
+    font-weight: 600;
+}
+
+    .btn-gold:hover {
+        background-color: #b8931f;
+        color: var(--navy);
+    }
+
+/* ---------- STATUS BADGES ---------- */
+.badge-active {
+    background-color: var(--success);
+    color: white;
+}
+
+.badge-late {
+    background-color: var(--warning);
+    color: var(--navy);
+}
+
+.badge-absent {
+    background-color: var(--danger);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+/* ---------- FONT & ICON SIZE ADJUSTMENTS ---------- */
+
+body {
+    font-size: 0.9rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1.3rem;
+}
+
+h3 {
+    font-size: 1.15rem;
+}
+
+h4 {
+    font-size: 1rem;
+}
+
+h5 {
+    font-size: 0.95rem;
+}
+
+.card-header {
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+}
+
+.card-body {
+    font-size: 0.875rem;
+}
+
+.table {
+    font-size: 0.875rem;
+}
+
+.btn {
+    font-size: 0.85rem;
+}
+
+.form-label {
+    font-size: 0.85rem;
+}
+
+.form-control, .form-select {
+    font-size: 0.875rem;
+}
+
+.bi {
+    font-size: 0.95rem;
+    vertical-align: -0.1em;
+}
+
+.sidebar-brand .icon {
+    font-size: 1.2rem;
+}
+
+.sidebar-brand span {
+    font-size: 1rem;
+}
+
+.sidebar-nav li a {
+    font-size: 0.85rem;
+    padding: 0.6rem 1.25rem;
+}
+
+.topbar h5 {
+    font-size: 1rem;
+}
+
+.role-badge {
+    font-size: 0.7rem;
+}
+
+.greeting {
+    font-size: 0.8rem;
+}
+.text-navy {
+    color: var(--navy);
+}
+/* ---------- DOCUMENT INFO CARD ALIGNMENT ---------- */
+
+.doc-info-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .doc-info-row:last-of-type {
+        border-bottom: none;
+    }
+
+.doc-label {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.doc-value {
+    color: var(--text-muted);
+    text-align: left;
+}
+
+.doc-badge {
+    justify-self: end;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.65rem;
+    min-width: 55px;
+    text-align: center;
+}
+/* ---------- DONUT CHART (Attendance Summary) ---------- */
+
+.donut-chart {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38px;
+    height: 38px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--navy);
+}
+.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+#attendance-info-card .card-body,
+#attendance-summary-card .card-body {
+    padding: 0.85rem 1.1rem;
+}

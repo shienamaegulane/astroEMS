@@ -1,0 +1,74 @@
+﻿
+@model astroEMS.Models.COERequest
+@{
+    ViewData["Title"] = "COE Request Details";
+    string statusClass = Model.Status switch { "Approved" => "badge-active", "Rejected" => "badge-adbsent", _ => "badge-late" };
+} 
+<h3 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>COE Request Details</h3>
+<div class="card mb-4" style="max-width:600px">
+    <div class="card-header d-flex justify-content-between align-baseline-items-center">
+        <span>Request #@Model.RequestID</span>
+        <span class="badge @statusClass"> @Model.Status</span>
+    </div>
+    <div class="card-body">
+    <div class="row mb-3">
+        <div class="col -4 text-muted"> Employee</div>
+        <div class="col-8 fw-semibold">@Model.Employee?.FirstName @Model.Employee?.LastName</div>
+    </div>
+            <div class="row mb-3">
+                <div class="col -4 text-muted"> Employee Number</div>
+                <div class="col-8 fw-semibold">@Model.Employee?.EmployeeNumber</div>
+            </div>
+                <div class="row mb-3">
+                    <div class="col -4 text-muted"> Department</div>
+                    <div class="col-8 fw-semibold">@Model.Employee?.Department</div>
+                </div>
+                    <div class="row mb-3">
+                        <div class="col -4 text-muted"> Position</div>
+                        <div class="col-8 fw-semibold">@Model.Employee?.Position</div>
+                    </div >   
+                    <div class="row mb-3">
+                        <div class="col -4 text-muted"> Purpose</div>
+                        <div class="col-8 fw-semibold">@Model.Purpose</div>
+                    </div>
+                            <div class="row mb-3">
+                                <div class="col -4 text-muted"> Date Requested</div>
+                                <div class="col-8 fw-semibold">@Model.DateRequested.ToString("MMMM dd, yyyy -h:MMM tt")</div>
+                            </div>
+       
+        @if(Model.Status!= "Pending")
+        {
+            <div class="row mb-3">
+                <div class="col-4 text-muted">Date Processed</div>
+                <div class="col-8">@Model.DateProcessed?.ToString("MMMM dd,yyyy - h:mm tt")</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-4 text-muted">Processed By</div>
+                <div class="clo-8>@Model.ProcessedBy"></div>
+            </div>
+        }
+   </div>
+   <div class="card-footer bg-white d-flex gap-2">
+        @if(Model.Status == "Pending")
+        {
+            <form asp-action="Approve" asp-route-id="@Model.RequestID" method="post">
+                <button class="btn btn-success btn-sm"><i class="bi bi-check-Ig"></i>
+                    Approve</button>
+            </form>
+            <form asp-action="Reject" asp-route-id="@Model.RequestID"method="post">
+                <button class="btn btn-danger btn-sm"><i class="bi bi-x-Ig"></i>Reject</button>"
+            </form>
+
+        }
+        else if(Model.Status == "Approved")
+        {
+            <a asp-action="Print"
+               asp-route-id="@Model.RequestID" class="btn btn-outline-primary btn-sm" target="coePrintWindow">
+                <i class="bi bi-printer"></i> View/Print Certificate
+            </a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to List</a>
+    </div>
+
+
+</div>

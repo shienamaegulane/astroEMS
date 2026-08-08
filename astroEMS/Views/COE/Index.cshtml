@@ -1,0 +1,62 @@
+﻿@model IEnumerable<astroEMS.Models.COERequest>
+@{
+    ViewData["Title"] = "COE Requests";
+}
+
+<h3 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>Certificate of Employment Requests</h3>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Employee</th>
+                    <th>Purpose</th>
+                    <th>Date Requested</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <a asp-action="Details" asp-route-id="@r.RequestID" class="text-decoration-none fw-semibold">
+                                @r.Employee?.FirstName @r.Employee?.LastName
+                            </a>
+                        </td>
+                        <td>@r.Purpose</td>
+                        <td>@r.DateRequested.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            @{
+                                string cls = r.Status switch { "Approved" => "badge-active", "Rejected" => "badge-absent", _ => "badge-late" };
+                            }
+                            <span class="badge @cls">@r.Status</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a asp-action="Details" asp-route-id="@r.RequestID" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            @if (r.Status == "Pending")
+                            {
+                                <form asp-action="Approve" asp-route-id="@r.RequestID" method="post" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-success">Approve</button>
+                                </form>
+                                <form asp-action="Reject" asp-route-id="@r.RequestID" method="post" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-danger">Reject</button>
+                                </form>
+                            }
+                            else if (r.Status == "Approved")
+                            {
+                                <a asp-action="Print" asp-route-id="@r.RequestID" class="btn btn-sm btn-outline-primary" target="coePrintWindow">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
