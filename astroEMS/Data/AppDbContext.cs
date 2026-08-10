@@ -16,5 +16,7 @@ namespace astroEMS.Data
         public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
         public DbSet<PayrollPeriod> PayrollPeriods { get; set; }
         public DbSet<Payslip> Payslips { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Position> Positions { get; set; }
     }
 }

@@ -1,9 +1,10 @@
-
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using astroEMS.Models;
 using astroEMS.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace astroEMS.Controllers
 {
@@ -80,6 +81,8 @@ namespace astroEMS.Controllers
         public async Task<IActionResult> Create()
     {
             ViewBag.NextEmployeeNumber = await GenerateNextEmployeeNumber ();
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "Name", "Name");
+            ViewBag.Positions = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "Name", "Name");
         return View();
     }
 
@@ -123,11 +126,14 @@ namespace astroEMS.Controllers
             }
 
             ViewBag.NextEmployeeNumber = employee.EmployeeNumber;
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Department);
+            ViewBag.Position = new SelectList(await _context.Positions.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Position);
             return View(employee);
         }
         // GET: EMPLOYEES/Edit/5
         public async Task<IActionResult> Edit(int? employeeid)
-    {
+        {
+            
         if (employeeid == null)
         {
             return NotFound();
@@ -138,8 +144,10 @@ namespace astroEMS.Controllers
         {
             return NotFound();
         }
-        return View(employee);
-    }
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Department);
+            ViewBag.Position = new SelectList(await _context.Positions.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Position);
+            return View(employee);
+        }
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int? employeeid, [Bind("EmployeeID,EmployeeNumber,FirstName,LastName,MiddleName,Gender,DateOfBirth,ContactNumber,Email,Address,Department,Position,DateHired,EmploymentStatus,EmploymentType,BasicSalary,SSSNumber,PhilHealthNumber,PagIBIGNumber,TINNumber,DateCreated,DateUpdated")] Employee employee)
@@ -170,7 +178,9 @@ namespace astroEMS.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(employee);
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Department);
+            ViewBag.Positions = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "Name", "Name", employee.Position);
+            return View(employee);
     }
 
     // GET: EMPLOYEES/Delete/5
