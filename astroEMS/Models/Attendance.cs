@@ -20,6 +20,8 @@ namespace astroEMS.Models
         public DateTime AttendanceDate { get; set; }
 
         public TimeSpan? TimeIn { get; set; }
+        public TimeSpan? LunchOut { get; set; }
+        public TimeSpan? LunchIn { get; set; }
         public TimeSpan? TimeOut { get; set; }
 
         [Required]

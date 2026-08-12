@@ -5,7 +5,6 @@ using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Formats.Asn1;
 using System.Globalization;
 
 namespace astroEMS.Controllers
@@ -20,11 +19,12 @@ namespace astroEMS.Controllers
             _context = context;
         }
 
-        // Standard shift start time used to determine "Late" status
-        private static readonly TimeSpan ShiftStart = new TimeSpan(8, 0, 0);       
+        // Standard shift times used to determine Late / OT status
+        private static readonly TimeSpan ShiftStart = new TimeSpan(8, 0, 0);
         private static readonly TimeSpan LateGraceCutoff = new TimeSpan(8, 15, 0);
+        private static readonly TimeSpan ShiftEnd = new TimeSpan(17, 0, 0);
 
-        // GET: Today's Attendance only 
+        // GET: Today's Attendance only
         public async Task<IActionResult> Index()
         {
             var today = DateTime.Today;
@@ -53,7 +53,7 @@ namespace astroEMS.Controllers
             return View();
         }
 
-        // POST: Import handler - supports CSV and XLSX
+        // POST: Import handler - supports CSV and XLSX (raw scan logs)
         [Authorize(Roles = "Admin,HR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -65,7 +65,8 @@ namespace astroEMS.Controllers
                 return View();
             }
 
-            var rows = new List<(string EmployeeNumber, DateTime Date, TimeSpan? TimeIn, TimeSpan? TimeOut)>();
+            // Raw scans: EmployeeNumber, Date, Time (one row per scan)
+            var scans = new List<(string EmployeeNumber, DateTime Date, TimeSpan Time)>();
             string extension = Path.GetExtension(file.FileName).ToLower();
 
             try
@@ -80,16 +81,14 @@ namespace astroEMS.Controllers
                     {
                         string empNo = csv.GetField("EmployeeNumber") ?? "";
                         string dateStr = csv.GetField("Date") ?? "";
-                        string timeInStr = csv.GetField("TimeIn") ?? "";
-                        string timeOutStr = csv.GetField("TimeOut") ?? "";
+                        string timeStr = csv.GetField("Time") ?? "";
 
                         if (string.IsNullOrWhiteSpace(empNo) || !DateTime.TryParse(dateStr, out DateTime rowDate))
                             continue;
+                        if (!TimeSpan.TryParse(timeStr, out TimeSpan scanTime))
+                            continue;
 
-                        TimeSpan? timeIn = TimeSpan.TryParse(timeInStr, out var ti) ? ti : null;
-                        TimeSpan? timeOut = TimeSpan.TryParse(timeOutStr, out var to) ? to : null;
-
-                        rows.Add((empNo, rowDate, timeIn, timeOut));
+                        scans.Add((empNo, rowDate.Date, scanTime));
                     }
                 }
                 else if (extension == ".xlsx")
@@ -99,20 +98,18 @@ namespace astroEMS.Controllers
                     var worksheet = workbook.Worksheet(1);
                     var range = worksheet.RangeUsed();
 
-                    foreach (var row in range.RowsUsed().Skip(1)) // skip header row
+                    foreach (var row in range.RowsUsed().Skip(1))
                     {
                         string empNo = row.Cell(1).GetString();
                         string dateStr = row.Cell(2).GetString();
-                        string timeInStr = row.Cell(3).GetString();
-                        string timeOutStr = row.Cell(4).GetString();
+                        string timeStr = row.Cell(3).GetString();
 
                         if (string.IsNullOrWhiteSpace(empNo) || !DateTime.TryParse(dateStr, out DateTime rowDate))
                             continue;
+                        if (!TimeSpan.TryParse(timeStr, out TimeSpan scanTime))
+                            continue;
 
-                        TimeSpan? timeIn = TimeSpan.TryParse(timeInStr, out var ti) ? ti : null;
-                        TimeSpan? timeOut = TimeSpan.TryParse(timeOutStr, out var to) ? to : null;
-
-                        rows.Add((empNo, rowDate, timeIn, timeOut));
+                        scans.Add((empNo, rowDate.Date, scanTime));
                     }
                 }
                 else
@@ -127,25 +124,58 @@ namespace astroEMS.Controllers
                 return View();
             }
 
+            // Group raw scans by Employee + Date, then map scans in order to TimeIn/LunchOut/LunchIn/TimeOut
+            var grouped = scans
+                .GroupBy(s => new { s.EmployeeNumber, s.Date })
+                .ToList();
+
             int imported = 0, skipped = 0;
 
-            foreach (var row in rows)
+            foreach (var group in grouped)
             {
-                var employee = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeNumber == row.EmployeeNumber);
+                var employee = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeNumber == group.Key.EmployeeNumber);
                 if (employee == null) { skipped++; continue; }
 
-                // Skip if a record already exists for this employee + date (avoid duplicate imports)
-                bool exists = await _context.Attendances.AnyAsync(a => a.EmployeeID == employee.EmployeeID && a.AttendanceDate == row.Date.Date);
+                bool exists = await _context.Attendances.AnyAsync(a => a.EmployeeID == employee.EmployeeID && a.AttendanceDate == group.Key.Date);
                 if (exists) { skipped++; continue; }
 
-                string status = DetermineStatus(row.TimeIn);
+                var orderedScans = group.Select(s => s.Time).OrderBy(t => t).ToList();
+
+                TimeSpan? timeIn = null, lunchOut = null, lunchIn = null, timeOut = null;
+
+                if (orderedScans.Count == 1)
+                {
+                    timeIn = orderedScans[0];
+                }
+                else if (orderedScans.Count == 2)
+                {
+                    timeIn = orderedScans[0];
+                    timeOut = orderedScans[1];
+                }
+                else if (orderedScans.Count == 3)
+                {
+                    timeIn = orderedScans[0];
+                    lunchOut = orderedScans[1];
+                    timeOut = orderedScans[2];
+                }
+                else if (orderedScans.Count >= 4)
+                {
+                    timeIn = orderedScans[0];
+                    lunchOut = orderedScans[1];
+                    lunchIn = orderedScans[2];
+                    timeOut = orderedScans[orderedScans.Count - 1];
+                }
+
+                string status = DetermineStatus(timeIn);
 
                 var attendance = new Attendance
                 {
                     EmployeeID = employee.EmployeeID,
-                    AttendanceDate = row.Date.Date,
-                    TimeIn = row.TimeIn,
-                    TimeOut = row.TimeOut,
+                    AttendanceDate = group.Key.Date,
+                    TimeIn = timeIn,
+                    LunchOut = lunchOut,
+                    LunchIn = lunchIn,
+                    TimeOut = timeOut,
                     Status = status
                 };
 
@@ -159,19 +189,10 @@ namespace astroEMS.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private string DetermineStatus(TimeSpan? timeIn)
-        {
-            if (timeIn == null) return "Absent";
-            if (timeIn > LateGraceCutoff) return "Late";
-            return "Present";
-        }
-        private static readonly TimeSpan ShiftEnd = new TimeSpan(17, 0, 0); // 5:00 PM
-
         // GET: Attendance Summary for a payroll period (Admin/HR only)
         [Authorize(Roles = "Admin,HR")]
         public async Task<IActionResult> Summary(DateTime? startDate, DateTime? endDate)
         {
-            // Default to the current 1-15 or 16-end cutoff if no dates given
             if (!startDate.HasValue || !endDate.HasValue)
             {
                 var today = DateTime.Today;
@@ -233,11 +254,6 @@ namespace astroEMS.Controllers
             return View(records);
         }
 
-        private decimal CalculateOTHours(TimeSpan? timeOut)
-        {
-            if (timeOut == null || timeOut <= ShiftEnd) return 0;
-            return (decimal)(timeOut.Value - ShiftEnd).TotalHours;
-        }
         // GET: Employee's own attendance record, defaults to current cutoff period, filterable
         public async Task<IActionResult> MyRecord(DateTime? startDate, DateTime? endDate)
         {
@@ -267,6 +283,20 @@ namespace astroEMS.Controllers
             ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
 
             return View(records);
+        }
+        
+
+        private decimal CalculateOTHours(TimeSpan? timeOut)
+        {
+            if (timeOut == null || timeOut <= ShiftEnd) return 0;
+            return (decimal)(timeOut.Value - ShiftEnd).TotalHours;
+        }
+
+        private string DetermineStatus(TimeSpan? timeIn)
+        {
+            if (timeIn == null) return "Absent";
+            if (timeIn > LateGraceCutoff) return "Late";
+            return "Present";
         }
     }
 }

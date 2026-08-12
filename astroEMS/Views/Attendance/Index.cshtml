@@ -66,6 +66,8 @@
                         <th class="ps-4">Employee</th>
                     }
                     <th>Time In</th>
+                    <th>Lunch Out</th>
+                    <th>Lunch In</th>
                     <th>Time Out</th>
                     <th>Status</th>
                 </tr>
@@ -85,6 +87,8 @@
                             <td class="ps-4">@a.Employee?.FirstName @a.Employee?.LastName</td>
                         }
                         <td>@(a.TimeIn.HasValue ? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
+                        <td>@(a.LunchOut.HasValue ? DateTime.Today.Add(a.LunchOut.Value).ToString("h:mm tt") : "-")</td>
+                        <td>@(a.LunchIn.HasValue ? DateTime.Today.Add(a.LunchIn.Value).ToString("h:mm tt") : "-")</td>
                         <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
                         <td>
                             @{
