@@ -353,3 +353,9 @@ h5 {
 #attendance-summary-card .card-body {
     padding: 0.85rem 1.1rem;
 }
+.form-group label {
+    margin-top: 0.85rem;
+    margin-bottom: 0.3rem;
+    display: block;
+    font-weight: 500;
+}

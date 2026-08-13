@@ -79,19 +79,12 @@ namespace astroEMS.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        public async Task<IActionResult> ChangePassword(string newPassword, string confirmPassword)
         {
             var username = User.Identity?.Name;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 
             if (user == null) return NotFound();
-
-            var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
-            if (verify == PasswordVerificationResult.Failed)
-            {
-                ViewBag.Error = "Current password is incorrect.";
-                return View();
-            }
 
             if (newPassword != confirmPassword)
             {

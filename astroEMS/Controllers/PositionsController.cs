@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using astroEMS.Models;
 using astroEMS.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace astroEMS.Controllers
 {
@@ -29,14 +30,15 @@ namespace astroEMS.Controllers
             return View(position);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "DepartmentID", "Name");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PositionID,Name")] Position position)
+        public async Task<IActionResult> Create([Bind("PositionID,Name,DepartmentID")] Position position)
         {
             if (ModelState.IsValid)
             {
@@ -44,6 +46,7 @@ namespace astroEMS.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "DepartmentID", "Name", position.DepartmentID);
             return View(position);
         }
 
@@ -52,12 +55,13 @@ namespace astroEMS.Controllers
             if (positionid == null) return NotFound();
             var position = await _context.Positions.FindAsync(positionid);
             if (position == null) return NotFound();
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "DepartmentID", "Name", position.DepartmentID);
             return View(position);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int? positionid, [Bind("PositionID,Name")] Position position)
+        public async Task<IActionResult> Edit(int? positionid, [Bind("PositionID,Name,DepartmentID")] Position position)
         {
             if (positionid != position.PositionID) return NotFound();
 
@@ -75,9 +79,21 @@ namespace astroEMS.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "DepartmentID", "Name", position.DepartmentID);
             return View(position);
         }
+        // GET: Positions/GetByDepartment/5 - used by JS to filter dropdown on Employee form
+        [HttpGet]
+        public async Task<IActionResult> GetByDepartment(int departmentId)
+        {
+            var positions = await _context.Positions
+                .Where(p => p.DepartmentID == departmentId)
+                .OrderBy(p => p.Name)
+                .Select(p => new { p.PositionID, p.Name })
+                .ToListAsync();
 
+            return Json(positions);
+        }
         public async Task<IActionResult> Delete(int? positionid)
         {
             if (positionid == null) return NotFound();

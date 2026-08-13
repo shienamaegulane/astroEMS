@@ -83,7 +83,8 @@ namespace astroEMS.Controllers
             ViewBag.NextEmployeeNumber = await GenerateNextEmployeeNumber ();
             ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "Name", "Name");
             ViewBag.Positions = new SelectList(await _context.Positions.OrderBy(p => p.Name).ToListAsync(), "Name", "Name");
-        return View();
+            ViewBag.AllDepartments = await _context.Departments.ToListAsync();
+            return View();
     }
 
         // POST: EMPLOYEES/Create
@@ -104,6 +105,7 @@ namespace astroEMS.Controllers
 
             if (ModelState.IsValid)
             {
+                employee.CreatedBy = User.Identity?.Name;
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
 
@@ -146,6 +148,7 @@ namespace astroEMS.Controllers
         }
             ViewBag.Departments = new SelectList(await _context.Departments.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Department);
             ViewBag.Position = new SelectList(await _context.Positions.OrderBy(d => d.Name).ToListAsync(), "Name", "Name", employee.Position);
+            ViewBag.AllDepartments = await _context.Departments.ToListAsync();
             return View(employee);
         }
     [HttpPost]
@@ -161,6 +164,7 @@ namespace astroEMS.Controllers
         {
             try
             {
+                    employee.UpdatedBy = User.Identity?.Name;
                     employee.DateUpdated = DateTime.Now;
                 _context.Update(employee);
                 await _context.SaveChangesAsync();

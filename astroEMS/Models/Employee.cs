@@ -31,6 +31,8 @@ namespace astroEMS.Models
         public string? ContactNumber { get; set; }
 
         [StringLength(100)]
+        [RegularExpression(@"^[^\s@]+@(gmail\.com)$",
+    ErrorMessage = "Email must end in @gmail.com")]
         public string? Email { get; set; }
 
         [StringLength(255)]
@@ -75,5 +77,10 @@ namespace astroEMS.Models
         public DateTime DateCreated { get; set; } = DateTime.Now;
 
         public DateTime? DateUpdated { get; set; }
+        [StringLength(50)]
+        public string? CreatedBy { get; set; }
+
+        [StringLength(50)]
+        public string? UpdatedBy { get; set; }
     }
 }

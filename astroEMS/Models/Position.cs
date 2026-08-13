@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace astroEMS.Models
 {
@@ -10,5 +11,10 @@ namespace astroEMS.Models
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
+
+        public int? DepartmentID { get; set; }
+
+        [ForeignKey("DepartmentID")]
+        public Department? Department { get; set; }
     }
 }

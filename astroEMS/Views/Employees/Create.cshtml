@@ -36,10 +36,13 @@
 
             <div class="form-group">
                 <label asp-for="Gender" class="control-label"></label>
-                <input asp-for="Gender" class="form-control" />
+                <select asp-for="Gender" class="form-select">
+                    <option value="">-- Select Gender --</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
                 <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="DateOfBirth" class="control-label"></label>
                 <input asp-for="DateOfBirth" class="form-control" type="date" />
@@ -66,7 +69,7 @@
 
             <div class="form-group">
                 <label asp-for="Department" class="control-label"></label>
-                <select asp-for="Department" class="form-select" asp-items="ViewBag.Departments">
+                <select asp-for="Department" id="departmentSelect" class="form-select" asp-items="ViewBag.Departments">
                     <option value="">-- Select Department --</option>
                 </select>
                 <span asp-validation-for="Department" class="text-danger"></span>
@@ -74,8 +77,8 @@
 
             <div class="form-group">
                 <label asp-for="Position" class="control-label"></label>
-                <select asp-for="Position" class="form-select" asp-items="ViewBag.Positions">
-                    <option value="">-- Select Position --</option>
+                <select asp-for="Position" id="positionSelect" class="form-select">
+                    <option value="">-- Select Department First --</option>
                 </select>
                 <span asp-validation-for="Position" class="text-danger"></span>
             </div>
@@ -88,16 +91,24 @@
 
             <div class="form-group">
                 <label asp-for="EmploymentStatus" class="control-label"></label>
-                <input asp-for="EmploymentStatus" class="form-control" />
+                <select asp-for="EmploymentStatus" class="form-select">
+                    <option value="Active">Active</option>
+                    <option value="Resigned">Resigned</option>
+                    <option value="Terminated">Terminated</option>
+                    <option value="On Leave">On Leave</option>
+                </select>
                 <span asp-validation-for="EmploymentStatus" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="EmploymentType" class="control-label"></label>
-                <input asp-for="EmploymentType" class="form-control" />
+                <select asp-for="EmploymentType" class="form-select">
+                    <option value="Regular">Regular</option>
+                    <option value="Probationary">Probationary</option>
+                    <option value="Contractual">Contractual</option>
+                </select>
                 <span asp-validation-for="EmploymentType" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="BasicSalary" class="control-label"></label>
                 <input asp-for="BasicSalary" class="form-control" />
@@ -137,3 +148,47 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deptSelect = document.getElementById('departmentSelect');
+            const posSelect = document.getElementById('positionSelect');
+            const currentPosition = "@Model?.Position"; // preserves selection on Edit
+
+            // Map department NAME -> DepartmentID, since Employee.Department stores text
+            const departmentMap = {
+                                    @foreach (var d in (IEnumerable<astroEMS.Models.Department>)ViewBag.AllDepartments)
+                {
+                    @:"@d.Name": @d.DepartmentID,
+            }
+                                };
+
+        function loadPositions(departmentName, selectedValue) {
+            posSelect.innerHTML = '<option value="">-- Select Position --</option>';
+            const deptId = departmentMap[departmentName];
+            if (!deptId) return;
+
+            fetch('/Positions/GetByDepartment?departmentId=' + deptId)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.name;
+                        opt.textContent = p.name;
+                        if (p.name === selectedValue) opt.selected = true;
+                        posSelect.appendChild(opt);
+                    });
+                });
+        }
+
+        deptSelect.addEventListener('change', function() {
+            loadPositions(this.value, null);
+        });
+
+        // On page load (Edit form), pre-filter based on existing Department value
+        if (deptSelect.value) {
+            loadPositions(deptSelect.value, currentPosition);
+        }
+                            });
+    </script>
+}

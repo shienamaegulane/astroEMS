@@ -84,9 +84,7 @@
                             <span class="badge @badgeClass">@item.EmploymentStatus</span>
                         </td>
                         <td class="text-end pe-4">
-                            <a asp-action="Details" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-secondary" title="View">
-                                <i class="bi bi-eye"></i>
-                            </a>
+                           
                             @if (User.IsInRole("Admin") || User.IsInRole("HR"))
                             {
                                 <a asp-action="Edit" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-primary" title="Edit">
