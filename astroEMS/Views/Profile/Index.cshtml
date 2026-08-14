@@ -17,11 +17,87 @@
 
 <div class="row mb-4">
     <div class="col-md-3 text-center">
-        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-             style="width:110px; height:110px; color:white; font-size:1.8rem;">
-            @Model.FirstName[0]@Model.LastName[0]
+        @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+        {
+            <img src="@Model.ProfilePicture" class="rounded-circle mx-auto d-block" style="width:110px;height:110px;object-fit:cover;" />
+        }
+        else
+        {
+            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                 style="width:110px; height:110px; color:white; font-size:1.8rem;">
+                @Model.FirstName[0]@Model.LastName[0]
+            </div>
+        }
+
+        <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#photoModal">
+            <i class="bi bi-camera"></i> Change Photo
+        </button>
+    </div>
+
+    <!-- Photo Upload Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Profile Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    <ul class="nav nav-tabs mb-3 justify-content-center" id="photoTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#uploadTab" type="button">
+                                <i class="bi bi-upload"></i> Upload File
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#cameraTab" type="button" id="cameraTabBtn">
+                                <i class="bi bi-camera"></i> Use Camera
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Upload from file -->
+                        <div class="tab-pane fade show active" id="uploadTab">
+                            <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data">
+                                <input type="file" name="photo" accept="image/*" class="form-control mb-3" required />
+                                <button type="submit" class="btn btn-primary w-100">Upload Photo</button>
+                            </form>
+                        </div>
+
+                        <!-- Capture from camera -->
+                        <div class="tab-pane fade" id="cameraTab">
+                            <video id="cameraVideo" autoplay playsinline class="w-100 rounded mb-2" style="max-height:300px; background:#000;"></video>
+                            <canvas id="cameraCanvas" style="display:none;"></canvas>
+                            <img id="capturedPreview" style="display:none; max-height:300px;" class="w-100 rounded mb-2" />
+
+                            <div id="cameraError" class="alert alert-warning small" style="display:none;"></div>
+
+                            <div class="d-flex gap-2">
+                                <button type="button" id="captureBtn" class="btn btn-outline-primary flex-fill">
+                                    <i class="bi bi-camera"></i> Capture
+                                </button>
+                                <button type="button" id="retakeBtn" class="btn btn-outline-secondary flex-fill" style="display:none;">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Retake
+                                </button>
+                            </div>
+
+                            <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data" id="cameraUploadForm" class="mt-2">
+                                <input type="file" name="photo" id="cameraFileInput" style="display:none;" />
+                                <button type="submit" id="useCaptureBtn" class="btn btn-primary w-100" style="display:none;">
+                                    Use This Photo
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <p class="mt-2 text-muted small">Change Photo (coming soon)</p>
     </div>
     <div class="col-md-9">
         <h3 class="mb-0">@Model.FirstName @Model.LastName</h3>
@@ -188,3 +264,68 @@
     </a>
     <a href="#" class="btn btn-outline-secondary btn-sm disabled">Generate Attendance Report</a>
 </div>
+ 
+@section Scripts {
+    <script>
+        let stream = null;
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.getElementById('cameraCanvas');
+        const preview = document.getElementById('capturedPreview');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const useCaptureBtn = document.getElementById('useCaptureBtn');
+        const cameraFileInput = document.getElementById('cameraFileInput');
+        const cameraError = document.getElementById('cameraError');
+
+        document.getElementById('cameraTabBtn').addEventListener('click', async function() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                cameraError.textContent = "Camera not supported on this device/browser.";
+                cameraError.style.display = 'block';
+                return;
+            }
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                cameraError.style.display = 'none';
+            } catch (err) {
+                cameraError.textContent = "Camera access denied or unavailable: " + err.message;
+                cameraError.style.display = 'block';
+            }
+        });
+
+        captureBtn.addEventListener('click', function() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], "camera_photo.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                cameraFileInput.files = dataTransfer.files;
+
+                preview.src = canvas.toDataURL('image/jpeg');
+                preview.style.display = 'block';
+                video.style.display = 'none';
+                captureBtn.style.display = 'none';
+                retakeBtn.style.display = 'inline-block';
+                useCaptureBtn.style.display = 'block';
+            }, 'image/jpeg', 0.9);
+        });
+
+        retakeBtn.addEventListener('click', function() {
+            preview.style.display = 'none';
+            video.style.display = 'block';
+            captureBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
+            useCaptureBtn.style.display = 'none';
+        });
+
+        // Stop camera when modal closes, to release the webcam
+        document.getElementById('photoModal').addEventListener('hidden.bs.modal', function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+}

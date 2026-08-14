@@ -79,5 +79,71 @@ namespace astroEMS.Controllers
 
             return View(employee);
         }
+        private readonly IWebHostEnvironment _env;
+
+        public ProfileController(AppDbContext context, IWebHostEnvironment env)
+        {
+            _context = context;
+            _env = env;
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadPhoto(IFormFile photo)
+        {
+            var employeeIdClaim = User.FindFirst("EmployeeID")?.Value;
+            if (employeeIdClaim == null) return NotFound();
+            int employeeId = int.Parse(employeeIdClaim);
+
+            var employee = await _context.Employees.FindAsync(employeeId);
+            if (employee == null) return NotFound();
+
+            if (photo == null || photo.Length == 0)
+            {
+                TempData["Error"] = "No photo selected.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            string[] allowedExtensions = { ".jpg", ".jpeg", ".png" };
+            string extension = Path.GetExtension(photo.FileName).ToLower();
+            if (!allowedExtensions.Contains(extension))
+            {
+                TempData["Error"] = "Only JPG or PNG images are allowed.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (photo.Length > 5 * 1024 * 1024) // 5MB limit
+            {
+                TempData["Error"] = "Photo must be under 5MB.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "profile_photos");
+            Directory.CreateDirectory(uploadsFolder);
+
+            string fileName = $"{employee.EmployeeNumber}_{DateTime.Now.Ticks}{extension}";
+            string filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            // Delete old photo file if one exists
+            if (!string.IsNullOrEmpty(employee.ProfilePicture))
+            {
+                string oldPath = Path.Combine(_env.WebRootPath, employee.ProfilePicture.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath))
+                {
+                    System.IO.File.Delete(oldPath);
+                }
+            }
+
+            employee.ProfilePicture = $"/uploads/profile_photos/{fileName}";
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Profile photo updated.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

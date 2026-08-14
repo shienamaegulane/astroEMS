@@ -82,5 +82,8 @@ namespace astroEMS.Models
 
         [StringLength(50)]
         public string? UpdatedBy { get; set; }
+
+        [StringLength(500)]
+        public string? ProfilePicture { get; set; }
     }
 }
