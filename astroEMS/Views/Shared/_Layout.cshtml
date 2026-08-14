@@ -28,9 +28,14 @@
     @if (isLoggedIn)
     {
         <div class="sidebar">
-            <div class="sidebar-brand">
-                <i class="bi bi-compass icon"></i>
-                <span>Astro Shipmanagement</span>
+            <div class="sidebar-brand d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-compass icon"></i>
+                    <span>Astro Shipmanagement</span>
+                </div>
+                <button class="btn-sidebar-close d-lg-none" id="sidebarCloseBtn">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
 
             <ul class="sidebar-nav">
@@ -57,7 +62,7 @@
                 <li><a class="@(currentController == "Positions" ? "active" : "")" asp-controller="Positions" asp-action="Index"><i class="bi bi-briefcase"></i> Positions</a></li>
 
                 <li><a class="@(currentController == "Attendance" ? "active" : "")" asp-controller="Attendance" asp-action="Index"><i class="bi bi-calendar-check"></i> Attendance</a></li>
-              @*   @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+                @* @if (User.IsInRole("Admin") || User.IsInRole("HR"))
                 {
                     <li><a asp-controller="Attendance" asp-action="Summary"><i class="bi bi-bar-chart-line"></i> Attendance Summary</a></li>
                 } *@
@@ -77,13 +82,19 @@
                 <a asp-controller="Account" asp-action="Logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
             </div>
         </div>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
     }
 
     <div class="main-content" style="@(isLoggedIn ? "" : "margin-left:0;")">
         @if (isLoggedIn)
         {
             <div class="topbar">
-                <h5 class="mb-0">@ViewData["Title"]</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sidebar-toggle d-lg-none" id="sidebarToggleBtn">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h5 class="mb-0">@ViewData["Title"]</h5>
+                </div>
                 <div class="d-flex align-items-center">
                     <span class="greeting">Hello, @User.Identity!.Name</span>
                     <span class="role-badge">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</span>
@@ -104,5 +115,26 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleBtn = document.getElementById('sidebarToggleBtn');
+            const closeBtn = document.getElementById('sidebarCloseBtn');
+
+            function openSidebar() {
+                sidebar?.classList.add('show');
+                overlay?.classList.add('show');
+            }
+
+            function closeSidebar() {
+                sidebar?.classList.remove('show');
+                overlay?.classList.remove('show');
+            }
+
+            toggleBtn?.addEventListener('click', openSidebar);
+            closeBtn?.addEventListener('click', closeSidebar);
+            overlay?.addEventListener('click', closeSidebar);
+    </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 :root {
-    --navy: #0A2540;
-    --steel: #1B3B6F;
+    --navy: #2B2F36;
+    --steel: #3F444C;
     --gold: #C9A227;
     --bg: #F5F7FA;
     --text: #1F2937;
@@ -358,4 +358,56 @@ h5 {
     margin-bottom: 0.3rem;
     display: block;
     font-weight: 500;
+}
+/* ---------- RESPONSIVE SIDEBAR ---------- */
+
+.btn-sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--navy);
+    font-size: 1.4rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.btn-sidebar-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 1.1rem;
+}
+
+    .btn-sidebar-close:hover {
+        color: white;
+    }
+
+/* Overlay behind the sidebar when open on mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+}
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 1000;
+    }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
 }
