@@ -28,14 +28,17 @@ namespace astroEMS.Controllers
         {
             int targetId;
 
-            if (User.IsInRole("Employee"))
+            if (employeeId.HasValue)
             {
-                targetId = int.Parse(User.FindFirst("EmployeeID")!.Value);
+                // Explicit employeeId given (e.g. HR viewing someone else's documents)
+                targetId = employeeId.Value;
             }
             else
             {
-                if (employeeId == null) return NotFound();
-                targetId = employeeId.Value;
+                // No employeeId given - fall back to the logged-in user's own EmployeeID
+                var claim = User.FindFirst("EmployeeID")?.Value;
+                if (claim == null) return NotFound();
+                targetId = int.Parse(claim);
             }
 
             var employee = await _context.Employees.FindAsync(targetId);
