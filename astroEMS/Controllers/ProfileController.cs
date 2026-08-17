@@ -21,10 +21,7 @@ namespace astroEMS.Controllers
             "Contract"
         };
 
-        public ProfileController(AppDbContext context)
-        {
-            _context = context;
-        }
+   
 
         public async Task<IActionResult> Index()
         {
@@ -55,7 +52,7 @@ namespace astroEMS.Controllers
                 };
             }).ToList();
 
-            // ---- Attendance data ----
+        
 
             var todayRecord = await _context.Attendances
                 .FirstOrDefaultAsync(a => a.EmployeeID == employeeId && a.AttendanceDate == DateTime.Today);
@@ -129,7 +126,7 @@ namespace astroEMS.Controllers
                 await photo.CopyToAsync(stream);
             }
 
-            // Delete old photo file if one exists
+         
             if (!string.IsNullOrEmpty(employee.ProfilePicture))
             {
                 string oldPath = Path.Combine(_env.WebRootPath, employee.ProfilePicture.TrimStart('/'));

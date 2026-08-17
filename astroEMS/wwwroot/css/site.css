@@ -29,7 +29,7 @@ h1, h2, h3, h4, h5, .navbar-brand {
     color: var(--navy);
 }
 
-/* ---------- SIDEBAR ---------- */
+
 .sidebar {
     position: fixed;
     top: 0;
@@ -103,7 +103,6 @@ h1, h2, h3, h4, h5, .navbar-brand {
         text-decoration: none;
     }
 
-/* ---------- MAIN CONTENT ---------- */
 .main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
@@ -137,7 +136,6 @@ h1, h2, h3, h4, h5, .navbar-brand {
     padding: 2rem;
 }
 
-/* ---------- CARDS ---------- */
 .card {
     border: none;
     border-radius: 10px;
@@ -153,7 +151,6 @@ h1, h2, h3, h4, h5, .navbar-brand {
     padding: 1rem 1.25rem;
 }
 
-/* ---------- BUTTONS ---------- */
 .btn-primary {
     background-color: var(--navy);
     border-color: var(--navy);
@@ -175,8 +172,6 @@ h1, h2, h3, h4, h5, .navbar-brand {
         background-color: #b8931f;
         color: var(--navy);
     }
-
-/* ---------- STATUS BADGES ---------- */
 .badge-active {
     background-color: var(--success);
     color: white;
@@ -201,7 +196,7 @@ h1, h2, h3, h4, h5, .navbar-brand {
         margin-left: 0;
     }
 }
-/* ---------- FONT & ICON SIZE ADJUSTMENTS ---------- */
+
 
 body {
     font-size: 0.9rem;
@@ -284,7 +279,7 @@ h5 {
 .text-navy {
     color: var(--navy);
 }
-/* ---------- DOCUMENT INFO CARD ALIGNMENT ---------- */
+
 
 .doc-info-row {
     display: grid;
@@ -316,7 +311,7 @@ h5 {
     min-width: 55px;
     text-align: center;
 }
-/* ---------- DONUT CHART (Attendance Summary) ---------- */
+
 
 .donut-chart {
     width: 60px;
@@ -359,7 +354,6 @@ h5 {
     display: block;
     font-weight: 500;
 }
-/* ---------- RESPONSIVE SIDEBAR ---------- */
 
 .btn-sidebar-toggle {
     background: none;
@@ -380,7 +374,6 @@ h5 {
         color: white;
     }
 
-/* Overlay behind the sidebar when open on mobile */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -411,3 +404,31 @@ h5 {
         margin-left: 0 !important;
     }
 }
+/* ---------- PROFILE PHOTO EDIT ICON ---------- */
+
+.photo-wrapper {
+    position: relative;
+    width: 110px;
+}
+
+.photo-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+    .photo-edit-btn:hover {
+        background: #b8931f;
+    }

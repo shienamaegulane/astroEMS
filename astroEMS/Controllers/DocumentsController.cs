@@ -12,7 +12,7 @@ namespace astroEMS.Controllers
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
 
-        // The standard set of documents every employee should have on file
+       
         private static readonly string[] RequiredDocumentTypes =
         {
             "Resume", "SSS", "PhilHealth", "Pag-IBIG", "BIR Form 1902", "Contract"
@@ -30,12 +30,12 @@ namespace astroEMS.Controllers
 
             if (employeeId.HasValue)
             {
-                // Explicit employeeId given (e.g. HR viewing someone else's documents)
+                
                 targetId = employeeId.Value;
             }
             else
             {
-                // No employeeId given - fall back to the logged-in user's own EmployeeID
+               
                 var claim = User.FindFirst("EmployeeID")?.Value;
                 if (claim == null) return NotFound();
                 targetId = int.Parse(claim);
@@ -49,7 +49,7 @@ namespace astroEMS.Controllers
                 .OrderByDescending(d => d.UploadedAt)
                 .ToListAsync();
 
-            // Build checklist: required type -> most recent uploaded doc (or null if missing)
+         
             var checklist = RequiredDocumentTypes.Select(type => new
             {
                 Type = type,
@@ -85,11 +85,11 @@ namespace astroEMS.Controllers
             var employee = await _context.Employees.FindAsync(employeeId);
             if (employee == null) return NotFound();
 
-            // Folder structure: wwwroot/uploads/employees/{EmployeeNumber}/
+          
             string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "employees", employee.EmployeeNumber);
             Directory.CreateDirectory(uploadsFolder);
 
-            // File name: {documenttype}.{ext} (e.g. sss.pdf, bir_form_1902.pdf) - lowercase, spaces to underscore
+         
             string safeTypeName = documentType.ToLower().Replace(" ", "_").Replace("-", "_");
             string uniqueFileName = $"{safeTypeName}{extension}";
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
@@ -99,7 +99,7 @@ namespace astroEMS.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            // If this document type already exists for this employee, replace it (update record instead of duplicating)
+          
             var existing = await _context.EmployeeDocuments
                 .FirstOrDefaultAsync(d => d.EmployeeID == employeeId && d.DocumentType == documentType);
 
