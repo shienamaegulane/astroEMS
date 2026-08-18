@@ -52,10 +52,19 @@ namespace astroEMS.Controllers
         [Authorize(Roles = "Admin,HR")]
         public async Task<IActionResult> Index()
         {
-            var requests = await _context.COERequests
-                .Include(r => r.Employee)
-                .OrderByDescending(r => r.DateRequested)
-                .ToListAsync();
+            var query = _context.COERequests.Include(r => r.Employee).AsQueryable();
+
+            if (User.IsInRole("HR") && !User.IsInRole("Admin"))
+            {
+                int employeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
+                var hrEmployee = await _context.Employees.FindAsync(employeeId);
+                if (hrEmployee != null)
+                {
+                    query = query.Where(r => r.Employee!.Department == hrEmployee.Department);
+                }
+            }
+
+            var requests = await query.OrderByDescending(r => r.DateRequested).ToListAsync();
             return View(requests);
         }
 
@@ -67,6 +76,16 @@ namespace astroEMS.Controllers
                 .FirstOrDefaultAsync(r => r.RequestID == id);
 
             if (request == null) return NotFound();
+
+            if (User.IsInRole("HR") && !User.IsInRole("Admin"))
+            {
+                int hrEmployeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
+                var hrEmployee = await _context.Employees.FindAsync(hrEmployeeId);
+                if (hrEmployee == null || request.Employee?.Department != hrEmployee.Department)
+                {
+                    return Forbid();
+                }
+            }
 
             return View(request);
         }

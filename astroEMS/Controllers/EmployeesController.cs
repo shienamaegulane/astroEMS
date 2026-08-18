@@ -23,6 +23,17 @@ namespace astroEMS.Controllers
         {
             var employees = from e in _context.Employees select e;
 
+            // HR sees only their own department; Admin sees everyone
+            if (User.IsInRole("HR") && !User.IsInRole("Admin"))
+            {
+                int employeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
+                var hrEmployee = await _context.Employees.FindAsync(employeeId);
+                if (hrEmployee != null)
+                {
+                    employees = employees.Where(e => e.Department == hrEmployee.Department);
+                }
+            }
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 employees = employees.Where(e =>

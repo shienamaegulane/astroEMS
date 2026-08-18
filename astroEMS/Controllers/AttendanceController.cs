@@ -191,7 +191,6 @@ namespace astroEMS.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Attendance Summary for a payroll period (Admin/HR only)
         [Authorize(Roles = "Admin,HR")]
         public async Task<IActionResult> Summary(DateTime? startDate, DateTime? endDate)
         {
@@ -210,10 +209,22 @@ namespace astroEMS.Controllers
                 }
             }
 
-            var records = await _context.Attendances
+            var query = _context.Attendances
                 .Include(a => a.Employee)
-                .Where(a => a.AttendanceDate >= startDate.Value.Date && a.AttendanceDate <= endDate.Value.Date)
-                .ToListAsync();
+                .Where(a => a.AttendanceDate >= startDate.Value.Date && a.AttendanceDate <= endDate.Value.Date);
+
+            // HR sees only their own department; Admin sees everyone
+            if (User.IsInRole("HR") && !User.IsInRole("Admin"))
+            {
+                int employeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
+                var hrEmployee = await _context.Employees.FindAsync(employeeId);
+                if (hrEmployee != null)
+                {
+                    query = query.Where(a => a.Employee!.Department == hrEmployee.Department);
+                }
+            }
+
+            var records = await query.ToListAsync();
 
             var summary = records
                 .GroupBy(a => a.Employee)
@@ -237,12 +248,22 @@ namespace astroEMS.Controllers
             return View(summary);
         }
 
-        // GET: Day-by-day detail for one employee within a period
         [Authorize(Roles = "Admin,HR")]
         public async Task<IActionResult> Details(int employeeId, DateTime startDate, DateTime endDate)
         {
             var employee = await _context.Employees.FindAsync(employeeId);
             if (employee == null) return NotFound();
+
+            // HR can only view employees in their own department
+            if (User.IsInRole("HR") && !User.IsInRole("Admin"))
+            {
+                int hrEmployeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
+                var hrEmployee = await _context.Employees.FindAsync(hrEmployeeId);
+                if (hrEmployee == null || employee.Department != hrEmployee.Department)
+                {
+                    return Forbid();
+                }
+            }
 
             var records = await _context.Attendances
                 .Where(a => a.EmployeeID == employeeId && a.AttendanceDate >= startDate.Date && a.AttendanceDate <= endDate.Date)
