@@ -1,0 +1,40 @@
+﻿@model IEnumerable<astroEMS.Models.Employee>
+@{
+    ViewData["Title"] = "Employee Master List";
+}
+
+<h3 class="mb-4"><i class="bi bi-people me-2"></i>Employee Master List</h3>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Employee No.</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Date Hired</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td class="ps-4">@e.EmployeeNumber</td>
+                        <td>@e.FirstName @e.LastName</td>
+                        <td>@e.Department</td>
+                        <td>@e.Position</td>
+                        <td>@e.DateHired.ToString("MMM dd, yyyy")</td>
+                        <td>@e.EmploymentType</td>
+                        <td>@e.EmploymentStatus</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">Back to Reports</a>

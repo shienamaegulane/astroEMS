@@ -29,7 +29,7 @@
                         <td class="ps-4">@u.Employee?.FirstName @u.Employee?.LastName</td>
                         <td>@u.Username</td>
                         <td>
-                            <form asp-action="ChangeRole" method="post" class="d-flex gap-1">
+                            <form asp-action="ChangeRole" method="post" class="d-inline-flex gap-1">
                                 <input type="hidden" name="userId" value="@u.UserID" />
                                 <select name="newRole" class="form-select form-select-sm" style="width:auto;">
                                     <option value="Employee" selected="@(u.Role == "Employee")">Employee</option>

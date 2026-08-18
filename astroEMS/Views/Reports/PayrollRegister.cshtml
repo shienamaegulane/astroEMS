@@ -1,0 +1,80 @@
+﻿@model IEnumerable<astroEMS.Models.Payslip>
+@{
+    ViewData["Title"] = "Payroll Register";
+    var periods = ViewBag.Periods as List<astroEMS.Models.PayrollPeriod>;
+}
+
+<h3 class="mb-4"><i class="bi bi-cash-stack me-2"></i>Payroll Register</h3>
+
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <select name="periodId" class="form-select form-select-sm" style="max-width:300px;" onchange="this.form.submit()">
+                <option value="">-- Select Payroll Period --</option>
+                @foreach (var p in periods!)
+                {
+                    <option value="@p.PeriodID" selected="@(p.PeriodID == (int?)ViewBag.SelectedPeriodId)">
+                        @p.PeriodStart.ToString("MMM dd") - @p.PeriodEnd.ToString("MMM dd, yyyy") (@p.Status)
+                    </option>
+                }
+            </select>
+        </form>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color:#F5F7FA;">
+                    <tr>
+                        <th class="ps-4">Employee</th>
+                        <th>Basic Pay</th>
+                        <th>OT Pay</th>
+                        <th>Gross Pay</th>
+                        <th>SSS</th>
+                        <th>PhilHealth</th>
+                        <th>Pag-IBIG</th>
+                        <th>Tax</th>
+                        <th>Total Deductions</th>
+                        <th class="pe-4">Net Pay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">@p.Employee?.FirstName @p.Employee?.LastName</td>
+                            <td>₱@p.BasicPay.ToString("N2")</td>
+                            <td>₱@p.OvertimePay.ToString("N2")</td>
+                            <td>₱@p.GrossPay.ToString("N2")</td>
+                            <td>₱@p.SSSDeduction.ToString("N2")</td>
+                            <td>₱@p.PhilHealthDeduction.ToString("N2")</td>
+                            <td>₱@p.PagIBIGDeduction.ToString("N2")</td>
+                            <td>₱@p.WithholdingTax.ToString("N2")</td>
+                            <td>₱@p.TotalDeductions.ToString("N2")</td>
+                            <td class="pe-4 fw-semibold">₱@p.NetPay.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold" style="background-color:#F5F7FA;">
+                        <td class="ps-4">TOTAL</td>
+                        <td>₱@Model.Sum(p => p.BasicPay).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.OvertimePay).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.GrossPay).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.SSSDeduction).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.PhilHealthDeduction).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.PagIBIGDeduction).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.WithholdingTax).ToString("N2")</td>
+                        <td>₱@Model.Sum(p => p.TotalDeductions).ToString("N2")</td>
+                        <td class="pe-4">₱@Model.Sum(p => p.NetPay).ToString("N2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}
+
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">Back to Reports</a>

@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Reports";
+}
+
+<h3 class="mb-4"><i class="bi bi-bar-chart me-2"></i>Reports</h3>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5><i class="bi bi-people me-2"></i>Employee Master List</h5>
+                <p class="text-muted small">Complete list of all employees with department, position, and status.</p>
+                <a asp-action="EmployeeMasterList" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5><i class="bi bi-calendar-check me-2"></i>Attendance Summary</h5>
+                <p class="text-muted small">Present/Late/Absent counts per employee for a date range.</p>
+                <a asp-action="AttendanceSummaryReport" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5><i class="bi bi-cash-stack me-2"></i>Payroll Register</h5>
+                <p class="text-muted small">Full payroll breakdown for a specific pay period.</p>
+                <a asp-action="PayrollRegister" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -5,8 +5,21 @@
 
 <div class="mb-4">
     <h3 class="mb-0">Operations Overview</h3>
-    <p class="text-muted">A summary view for HR, Admin covering employees and requests. @DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+    <p class="text-muted">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
 </div>
+
+@if (Model.Alerts.Any())
+{
+    <div class="card mb-4">
+        <div class="card-header"><i class="bi bi-exclamation-triangle text-warning me-1"></i> <strong>Alerts</strong></div>
+        <div class="list-group list-group-flush">
+            @foreach (var alert in Model.Alerts)
+            {
+                <div class="list-group-item small">@alert</div>
+            }
+        </div>
+    </div>
+}
 
 <div class="row g-3 mb-4">
     <div class="col-md-2">
@@ -14,25 +27,14 @@
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Total Employees</div>
                 <div class="fs-3 fw-bold text-navy">@Model.TotalEmployees</div>
-                <div class="text-muted small">Across all departments</div>
             </div>
         </div>
     </div>
     <div class="col-md-2">
         <div class="card h-100">
             <div class="card-body">
-                <div class="text-muted small text-uppercase">Active Employees</div>
+                <div class="text-muted small text-uppercase">Active</div>
                 <div class="fs-3 fw-bold text-success">@Model.ActiveEmployees</div>
-                <div class="text-muted small">Currently employed</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Probationary</div>
-                <div class="fs-3 fw-bold" style="color:#F9A825;">@Model.ProbationaryEmployees</div>
-                <div class="text-muted small">Under evaluation</div>
             </div>
         </div>
     </div>
@@ -40,8 +42,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Present Today</div>
-                <div class="fs-3 fw-bold text-muted">—</div>
-                <div class="text-muted small">Coming with Attendance</div>
+                <div class="fs-3 fw-bold text-success">@Model.PresentToday</div>
             </div>
         </div>
     </div>
@@ -49,8 +50,15 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Late Today</div>
-                <div class="fs-3 fw-bold text-muted">—</div>
-                <div class="text-muted small">Coming with Attendance</div>
+                <div class="fs-3 fw-bold" style="color:#F9A825;">@Model.LateToday</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Absent Today</div>
+                <div class="fs-3 fw-bold text-danger">@Model.AbsentToday</div>
             </div>
         </div>
     </div>
@@ -59,31 +67,24 @@
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Pending COE</div>
                 <div class="fs-3 fw-bold" style="color:#C9A227;">@Model.PendingCOERequests</div>
-                <div class="text-muted small">Awaiting HR review</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3">
+<div class="row g-3 mb-4">
     <div class="col-md-7">
         <div class="card">
             <div class="card-header">Department Overview</div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead style="background-color:#F5F7FA;">
-                        <tr>
-                            <th class="ps-4">Department</th>
-                            <th>Employees</th>
-                        </tr>
+                        <tr><th class="ps-4">Department</th><th>Employees</th></tr>
                     </thead>
                     <tbody>
                         @foreach (var d in Model.DepartmentBreakdown)
                         {
-                            <tr>
-                                <td class="ps-4">@d.Department</td>
-                                <td>@d.Count</td>
-                            </tr>
+                            <tr><td class="ps-4">@d.Department</td><td>@d.Count</td></tr>
                         }
                     </tbody>
                 </table>
@@ -93,16 +94,32 @@
 
     <div class="col-md-5">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Latest Announcements</span>
-            </div>
+            <div class="card-header">Employment Type</div>
             <div class="card-body">
-                <h6 class="fw-semibold">Welcome to Astro EMS</h6>
-                <p class="text-muted small mb-0">
-                    This is a placeholder announcement. A full Announcements feature
-                    (post/edit/delete company-wide notices) can be added here later.
-                </p>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Regular</span><strong>@Model.RegularEmployees</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Probationary</span><strong>@Model.ProbationaryEmployees</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span>Contractual</span><strong>@Model.ContractualEmployees</strong>
+                </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Quick Actions</div>
+    <div class="card-body d-flex gap-2 flex-wrap">
+        @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+        {
+            <a asp-controller="Employees" asp-action="Create" class="btn btn-outline-primary btn-sm"><i class="bi bi-person-plus"></i> Add Employee</a>
+            <a asp-controller="Attendance" asp-action="Import" class="btn btn-outline-primary btn-sm"><i class="bi bi-upload"></i> Import Attendance</a>
+            <a asp-controller="Payroll" asp-action="GeneratePayroll" class="btn btn-outline-primary btn-sm"><i class="bi bi-cash-stack"></i> Generate Payroll</a>
+            <a asp-controller="COE" asp-action="Index" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-check"></i> COE Requests</a>
+        }
+        <a asp-controller="Attendance" asp-action="Summary" class="btn btn-outline-secondary btn-sm"><i class="bi bi-bar-chart-line"></i> Attendance Summary</a>
     </div>
 </div>
