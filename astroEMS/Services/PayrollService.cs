@@ -102,7 +102,20 @@ namespace astroEMS.Services
             }
 
             // ---- Earnings ----
-            decimal basicPay = employee.BasicSalary / 2; // fixed semi-monthly, regardless of absences
+            decimal basicPay;
+
+            if (employee.EmploymentType == "Contractual")
+            {
+                // No-work-no-pay: paid only for days actually worked (Present + Late count as worked)
+                int daysWorked = daysPresent + daysLate;
+                basicPay = Math.Round(dailyRate * daysWorked, 2);
+            }
+            else
+            {
+                // Regular / Probationary: fixed semi-monthly salary, regardless of attendance
+                basicPay = employee.BasicSalary / 2;
+            }
+
             decimal overtimePay = Math.Round(totalOvertimeHours * otRate, 2);
             decimal grossPay = basicPay + overtimePay;
 

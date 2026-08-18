@@ -19,6 +19,6 @@ namespace astroEMS.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = "Open";
+        public string Status { get; set; } = "Draft";
     }
 }

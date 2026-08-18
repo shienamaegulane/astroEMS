@@ -58,8 +58,9 @@
                 @if (User.IsInRole("Admin") || User.IsInRole("HR"))
                 {
                     <li><a class="@(currentController == "Departments" ? "active" : "")" asp-controller="Departments" asp-action="Index"><i class="bi bi-diagram-3"></i> Departments</a></li>
+                    <li><a class="@(currentController == "Positions" ? "active" : "")" asp-controller="Positions" asp-action="Index"><i class="bi bi-briefcase"></i> Positions</a></li>
                 }
-                <li><a class="@(currentController == "Positions" ? "active" : "")" asp-controller="Positions" asp-action="Index"><i class="bi bi-briefcase"></i> Positions</a></li>
+              
 
                 <li><a class="@(currentController == "Attendance" ? "active" : "")" asp-controller="Attendance" asp-action="Index"><i class="bi bi-calendar-check"></i> Attendance</a></li>
                 @* @if (User.IsInRole("Admin") || User.IsInRole("HR"))

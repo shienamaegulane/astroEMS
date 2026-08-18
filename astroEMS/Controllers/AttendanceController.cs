@@ -23,6 +23,8 @@ namespace astroEMS.Controllers
         private static readonly TimeSpan ShiftStart = new TimeSpan(8, 0, 0);
         private static readonly TimeSpan LateGraceCutoff = new TimeSpan(8, 15, 0);
         private static readonly TimeSpan ShiftEnd = new TimeSpan(17, 0, 0);
+        private static readonly TimeSpan AbsentTimeInCutoff = new TimeSpan(9, 0, 0);  
+        private static readonly TimeSpan AbsentLunchInCutoff = new TimeSpan(14, 0, 0); 
 
         // GET: Today's Attendance only
         public async Task<IActionResult> Index()
@@ -46,14 +48,14 @@ namespace astroEMS.Controllers
             return View(records);
         }
 
-        // GET: Import page (Admin/HR only)
+        // GET: Import page
         [Authorize(Roles = "Admin,HR")]
         public IActionResult Import()
         {
             return View();
         }
 
-        // POST: Import handler - supports CSV and XLSX (raw scan logs)
+        // POST: Import handler
         [Authorize(Roles = "Admin,HR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -65,7 +67,7 @@ namespace astroEMS.Controllers
                 return View();
             }
 
-            // Raw scans: EmployeeNumber, Date, Time (one row per scan)
+            // Raw scans: EmployeeNumber, Date, Time 
             var scans = new List<(string EmployeeNumber, DateTime Date, TimeSpan Time)>();
             string extension = Path.GetExtension(file.FileName).ToLower();
 
@@ -166,7 +168,7 @@ namespace astroEMS.Controllers
                     timeOut = orderedScans[orderedScans.Count - 1];
                 }
 
-                string status = DetermineStatus(timeIn);
+                string status = DetermineStatus(timeIn,lunchIn);
 
                 var attendance = new Attendance
                 {
@@ -292,9 +294,11 @@ namespace astroEMS.Controllers
             return (decimal)(timeOut.Value - ShiftEnd).TotalHours;
         }
 
-        private string DetermineStatus(TimeSpan? timeIn)
+        private string DetermineStatus(TimeSpan? timeIn, TimeSpan? lunchIn = null)
         {
             if (timeIn == null) return "Absent";
+            if (timeIn > AbsentTimeInCutoff) return "Absent";     
+            if (lunchIn.HasValue && lunchIn.Value > AbsentLunchInCutoff) return "Absent"; 
             if (timeIn > LateGraceCutoff) return "Late";
             return "Present";
         }

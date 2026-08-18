@@ -110,7 +110,16 @@
 
     <div class="section-title">EARNINGS</div>
     <table>
-        <tr><td>Basic Pay</td><td class="right">₱@Model.BasicPay.ToString("N2")</td></tr>
+        <tr>
+            <td>
+                Basic Pay
+                @if (Model.Employee?.EmploymentType == "Contractual")
+                {
+                    <br /><span style="font-size:0.75rem; color:#666;">(Daily rate × @(Model.DaysPresent + Model.DaysLate) day(s) worked)</span>
+                }
+            </td>
+            <td class="right">₱@Model.BasicPay.ToString("N2")</td>
+        </tr>
         <tr><td>Overtime Pay</td><td class="right">₱@Model.OvertimePay.ToString("N2")</td></tr>
         <tr class="total-row"><td>GROSS PAY</td><td class="right">₱@Model.GrossPay.ToString("N2")</td></tr>
     </table>

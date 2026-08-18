@@ -1,0 +1,70 @@
+﻿@model IEnumerable<astroEMS.Models.Payslip>
+@{
+    ViewData["Title"] = "Payroll Breakdown";
+    var period = ViewBag.Period as astroEMS.Models.PayrollPeriod;
+}
+
+<h3 class="mb-1"><i class="bi bi-table me-2"></i>Generate Payroll for @period?.PeriodStart.ToString("MMM dd, yyyy") - @period?.PeriodEnd.ToString("MMM dd, yyyy")</h3>
+<p class="text-muted mb-4">
+    Status:
+    <span class="badge @(period?.Status == "Approved" ? "badge-active" : "badge-late")">@period?.Status</span>
+</p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color:#F5F7FA;">
+                <tr>
+                    <th class="ps-4">Employee</th>
+                    <th>Basic Salary</th>
+                    <th>Daily Rate</th>
+                    <th>Work Days</th>
+                    <th>Gross Pay</th>
+                    <th>PhilHealth</th>
+                    <th>SSS</th>
+                    <th>Pag-IBIG</th>
+                    <th class="pe-4">Net Pay</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    decimal dailyRate = (p.Employee?.BasicSalary ?? 0) / 22;
+                    int workDays = p.DaysPresent + p.DaysLate;
+                    <tr>
+                        <td class="ps-4">@p.Employee?.FirstName @p.Employee?.LastName</td>
+                        <td>₱@p.Employee?.BasicSalary.ToString("N2")</td>
+                        <td>₱@dailyRate.ToString("N2")</td>
+                        <td>@workDays</td>
+                        <td>₱@p.GrossPay.ToString("N2")</td>
+                        <td>₱@p.PhilHealthDeduction.ToString("N2")</td>
+                        <td>₱@p.SSSDeduction.ToString("N2")</td>
+                        <td>₱@p.PagIBIGDeduction.ToString("N2")</td>
+                        <td class="pe-4 fw-semibold">₱@p.NetPay.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mt-3">
+    @if (period?.Status == "PendingApproval" && User.IsInRole("Admin"))
+    {
+        <form asp-action="Approve" method="post">
+            <input type="hidden" name="periodId" value="@period.PeriodID" />
+            <button type="submit" class="btn btn-primary" onclick="return confirm('Approve this payroll? Employees will be able to view their payslips.');">
+                <i class="bi bi-check-circle"></i> Approve Payroll
+            </button>
+        </form>
+    }
+    @if (period?.Status == "PendingApproval" && User.IsInRole("HR") && !User.IsInRole("Admin"))
+    {
+        <div class="alert alert-info mb-0 py-2 px-3">
+            <i class="bi bi-info-circle"></i> Waiting for Admin approval.
+        </div>
+    }
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Payroll List
+    </a>
+</div>

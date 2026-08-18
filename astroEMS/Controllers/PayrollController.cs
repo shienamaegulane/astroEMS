@@ -19,58 +19,74 @@ namespace astroEMS.Controllers
             _payrollService = payrollService;
         }
 
-        // ---- Admin/HR: list all payroll periods ----
+        // ---- Admin/HR: Payslip list (flat table, all periods, filterable) ----
         [Authorize(Roles = "Admin,HR")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate, string? search)
         {
-            var periods = await _context.PayrollPeriods
-                .OrderByDescending(p => p.PeriodStart)
+            var query = _context.Payslips
+                .Include(p => p.Employee)
+                .Include(p => p.Period)
+                .AsQueryable();
+
+            if (startDate.HasValue)
+                query = query.Where(p => p.Period!.PeriodStart >= startDate.Value.Date);
+            if (endDate.HasValue)
+                query = query.Where(p => p.Period!.PeriodEnd <= endDate.Value.Date);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p =>
+                    p.Employee!.FirstName.Contains(search) ||
+                    p.Employee!.LastName.Contains(search) ||
+                    p.Employee!.EmployeeNumber.Contains(search));
+            }
+
+            var payslips = await query
+                .OrderByDescending(p => p.Period!.PeriodStart)
+                .ThenBy(p => p.Employee!.FirstName)
                 .ToListAsync();
-            return View(periods);
+
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            ViewBag.Search = search;
+
+            return View(payslips);
         }
 
-        // ---- Admin/HR: create a new payroll period ----
+        // ---- Admin/HR: Generate Payroll form ----
+        [Authorize(Roles = "Admin,HR")]
+        public IActionResult GeneratePayroll()
+        {
+            return View();
+        }
+
+        // ---- Admin/HR: create period + compute payslips, then go to breakdown screen ----
         [Authorize(Roles = "Admin,HR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePeriod(DateTime periodStart, DateTime periodEnd, DateTime payDate)
+        public async Task<IActionResult> GeneratePayroll(DateTime periodStart, DateTime periodEnd, DateTime payDate)
         {
             var period = new PayrollPeriod
             {
                 PeriodStart = periodStart,
                 PeriodEnd = periodEnd,
                 PayDate = payDate,
-                Status = "Open"
+                Status = "Draft"
             };
             _context.PayrollPeriods.Add(period);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Payroll period created.";
-            return RedirectToAction(nameof(Index));
+            await _payrollService.GeneratePayrollAsync(period.PeriodID);
+
+            period.Status = "PendingApproval";
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Breakdown), new { periodId = period.PeriodID });
         }
 
-        // ---- Admin/HR: generate payslips for a period ----
+        // ---- Admin/HR: breakdown/review screen for a generated period ----
         [Authorize(Roles = "Admin,HR")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Generate(int periodId)
-        {
-            var (generated, skipped) = await _payrollService.GeneratePayrollAsync(periodId);
-
-            var period = await _context.PayrollPeriods.FindAsync(periodId);
-            if (period != null)
-            {
-                period.Status = "Processed";
-                await _context.SaveChangesAsync();
-            }
-
-            TempData["Success"] = $"Payroll generated: {generated} payslip(s) created, {skipped} skipped (already existed).";
-            return RedirectToAction(nameof(Payslips), new { periodId });
-        }
-
-        // ---- Admin/HR: view all payslips for a period ----
-        [Authorize(Roles = "Admin,HR")]
-        public async Task<IActionResult> Payslips(int periodId)
+        public async Task<IActionResult> Breakdown(int periodId)
         {
             var period = await _context.PayrollPeriods.FindAsync(periodId);
             if (period == null) return NotFound();
@@ -83,6 +99,22 @@ namespace astroEMS.Controllers
 
             ViewBag.Period = period;
             return View(payslips);
+        }
+
+        // ---- Admin only: approve a pending period ----
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int periodId)
+        {
+            var period = await _context.PayrollPeriods.FindAsync(periodId);
+            if (period != null)
+            {
+                period.Status = "Approved";
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Payroll approved. Employees can now view their payslips.";
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // ---- Everyone: view a single payslip (own, or any if Admin/HR) ----
@@ -99,19 +131,35 @@ namespace astroEMS.Controllers
             {
                 int employeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
                 if (payslip.EmployeeID != employeeId) return Forbid();
+                if (payslip.Period?.Status != "Approved") return Forbid();
             }
 
             return View(payslip);
         }
 
-        // ---- Employee: my own payslip history ----
+        // ---- Admin/HR: bulk print multiple payslips at once ----
+        [Authorize(Roles = "Admin,HR")]
+        public async Task<IActionResult> BulkPrint(int[] ids)
+        {
+            if (ids == null || ids.Length == 0) return NotFound();
+
+            var payslips = await _context.Payslips
+                .Include(p => p.Employee)
+                .Include(p => p.Period)
+                .Where(p => ids.Contains(p.PayslipID))
+                .ToListAsync();
+
+            return View(payslips);
+        }
+
+        // ---- Employee: my own payslip history (approved periods only) ----
         public async Task<IActionResult> MyPayslips()
         {
             int employeeId = int.Parse(User.FindFirst("EmployeeID")!.Value);
 
             var payslips = await _context.Payslips
                 .Include(p => p.Period)
-                .Where(p => p.EmployeeID == employeeId)
+                .Where(p => p.EmployeeID == employeeId && p.Period!.Status == "Approved")
                 .OrderByDescending(p => p.Period!.PeriodStart)
                 .ToListAsync();
 

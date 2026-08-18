@@ -1,6 +1,6 @@
-﻿@model IEnumerable<astroEMS.Models.PayrollPeriod>
+﻿@model IEnumerable<astroEMS.Models.Payslip>
 @{
-    ViewData["Title"] = "Payroll Periods";
+    ViewData["Title"] = "Payroll";
 }
 
 @if (TempData["Success"] != null)
@@ -8,69 +8,104 @@
     <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<h3 class="mb-4"><i class="bi bi-cash-stack me-2"></i>Payroll Periods</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Payroll</h3>
+    <a asp-action="GeneratePayroll" class="btn btn-gold">
+        <i class="bi bi-plus-lg"></i> Generate Payroll
+    </a>
+</div>
 
-<div class="card mb-4" style="max-width:500px;">
-    <div class="card-header">Create New Payroll Period</div>
-    <div class="card-body">
-        <form asp-action="CreatePeriod" method="post">
-            <div class="mb-2">
-                <label class="form-label">Period Start</label>
-                <input type="date" name="periodStart" class="form-control" required />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Period End</label>
-                <input type="date" name="periodEnd" class="form-control" required />
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Pay Date</label>
-                <input type="date" name="payDate" class="form-control" required />
-            </div>
-            <button type="submit" class="btn btn-gold">Create Period</button>
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form asp-action="Index" method="get" class="d-flex gap-2 align-items-center flex-wrap">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-sm" placeholder="Search employee..." style="max-width:220px;" />
+            <label class="mb-0 small text-muted">From</label>
+            <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control form-control-sm" style="max-width:160px;" />
+            <label class="mb-0 small text-muted">To</label>
+            <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control form-control-sm" style="max-width:160px;" />
+            <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Clear</a>
         </form>
     </div>
 </div>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Period</th>
-                    <th>Pay Date</th>
-                    <th>Status</th>
-                    <th class="text-end pe-4">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in Model)
-                {
-                    <tr>
-                        <td class="ps-4">@p.PeriodStart.ToString("MMM dd") - @p.PeriodEnd.ToString("MMM dd, yyyy")</td>
-                        <td>@p.PayDate.ToString("MMM dd, yyyy")</td>
-                        <td>
-                            <span class="badge @(p.Status == "Processed" ? "badge-active" : "badge-late")">@p.Status</span>
-                        </td>
-                        <td class="text-end pe-4">
-                            @if (p.Status == "Open")
-                            {
-                                <form asp-action="Generate" method="post" class="d-inline">
-                                    <input type="hidden" name="periodId" value="@p.PeriodID" />
-                                    <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Generate payroll for this period?');">
-                                        <i class="bi bi-gear"></i> Generate Payroll
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <a asp-action="Payslips" asp-route-periodId="@p.PeriodID" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> View Payslips
-                                </a>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<form id="bulkPrintForm" asp-action="BulkPrint" method="get" target="_blank">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="selectAll" />
+            <label class="form-check-label small" for="selectAll">Select All</label>
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-primary" id="bulkPrintBtn" disabled>
+            <i class="bi bi-printer"></i> Print Selected
+        </button>
     </div>
-</div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color:#F5F7FA;">
+                    <tr>
+                        <th class="ps-4"><input type="checkbox" disabled /></th>
+                        <th>Employee</th>
+                        <th>Period</th>
+                        <th>Gross Pay</th>
+                        <th>Deductions</th>
+                        <th>Net Pay</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4">No payslips found.</td></tr>
+                    }
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <input type="checkbox" name="ids" value="@p.PayslipID" class="payslip-checkbox" />
+                            </td>
+                            <td>@p.Employee?.FirstName @p.Employee?.LastName</td>
+                            <td>@p.Period?.PeriodStart.ToString("MMM dd") - @p.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td>
+                            <td>₱@p.GrossPay.ToString("N2")</td>
+                            <td>₱@p.TotalDeductions.ToString("N2")</td>
+                            <td class="fw-semibold">₱@p.NetPay.ToString("N2")</td>
+                            <td>
+                                <span class="badge @(p.Period?.Status == "Approved" ? "badge-active" : "badge-late")">@p.Period?.Status</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-action="Breakdown" asp-route-periodId="@p.PeriodID" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-table"></i>
+                                </a>
+                                <a asp-action="View" asp-route-id="@p.PayslipID" class="btn btn-sm btn-outline-primary" target="payslipWindow">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.payslip-checkbox');
+        const bulkPrintBtn = document.getElementById('bulkPrintBtn');
+
+        function updateBulkBtn() {
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            bulkPrintBtn.disabled = !anyChecked;
+        }
+
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBulkBtn();
+        });
+
+        checkboxes.forEach(cb => cb.addEventListener('change', updateBulkBtn));
+    </script>
+}
