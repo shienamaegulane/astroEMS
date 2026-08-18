@@ -45,7 +45,7 @@ namespace astroEMS.Controllers
 
             if (User.IsInRole("Admin") || User.IsInRole("HR"))
             {
-                // ---- System-wide alerts for Admin/HR ----
+             
                 int missingGovIds = await _context.Employees.CountAsync(e =>
                     string.IsNullOrEmpty(e.SSSNumber) || string.IsNullOrEmpty(e.PhilHealthNumber) ||
                     string.IsNullOrEmpty(e.PagIBIGNumber) || string.IsNullOrEmpty(e.TINNumber));
@@ -61,7 +61,7 @@ namespace astroEMS.Controllers
             }
             else
             {
-                // ---- Personal alerts for the logged-in Employee ----
+              
                 var employeeIdClaim = User.FindFirst("EmployeeID")?.Value;
                 if (employeeIdClaim != null)
                 {
