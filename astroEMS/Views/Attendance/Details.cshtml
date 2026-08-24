@@ -31,7 +31,13 @@
                         <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
                         <td>
                             @{
-                                string cls = a.Status switch { "Present" => "badge-active", "Late" => "badge-late", _ => "badge-absent" };
+                                string cls = a.Status switch
+                                {
+                                    "Present" => "badge-active",
+                                    "Late" => "badge-late",
+                                    "Half Day" => "badge-halfday",
+                                    _ => "badge-absent"
+                                };
                             }
                             <span class="badge @cls">@a.Status</span>
                         </td>

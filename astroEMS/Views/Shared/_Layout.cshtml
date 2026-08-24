@@ -19,9 +19,52 @@
         bool isLoggedIn = User.Identity != null && User.Identity.IsAuthenticated;
         string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
         int pendingCOECount = 0;
-        if (isLoggedIn && (User.IsInRole("Admin") || User.IsInRole("HR")))
+        var topbarAlerts = new List<string>();
+
+        if (isLoggedIn)
         {
-            pendingCOECount = DbContext.COERequests.Count(r => r.Status == "Pending");
+            if (User.IsInRole("Admin") || User.IsInRole("HR"))
+            {
+                pendingCOECount = DbContext.COERequests.Count(r => r.Status == "Pending");
+
+                int missingGovIds = DbContext.Employees.Count(e =>
+                    string.IsNullOrEmpty(e.SSSNumber) || string.IsNullOrEmpty(e.PhilHealthNumber) ||
+                    string.IsNullOrEmpty(e.PagIBIGNumber) || string.IsNullOrEmpty(e.TINNumber));
+                if (missingGovIds > 0)
+                    topbarAlerts.Add($"{missingGovIds} employee(s) have incomplete government ID information.");
+
+                if (pendingCOECount > 0)
+                    topbarAlerts.Add($"{pendingCOECount} COE request(s) awaiting HR review.");
+
+                int pendingPayroll = DbContext.PayrollPeriods.Count(p => p.Status == "PendingApproval");
+                if (pendingPayroll > 0)
+                    topbarAlerts.Add($"{pendingPayroll} payroll period(s) awaiting Admin approval.");
+            }
+            else
+            {
+                var employeeIdClaim = User.FindFirst("EmployeeID")?.Value;
+                if (employeeIdClaim != null)
+                {
+                    int employeeId = int.Parse(employeeIdClaim);
+                    var me = DbContext.Employees.Find(employeeId);
+
+                    if (me != null)
+                    {
+                        var missingFields = new List<string>();
+                        if (string.IsNullOrEmpty(me.SSSNumber)) missingFields.Add("SSS");
+                        if (string.IsNullOrEmpty(me.PhilHealthNumber)) missingFields.Add("PhilHealth");
+                        if (string.IsNullOrEmpty(me.PagIBIGNumber)) missingFields.Add("Pag-IBIG");
+                        if (string.IsNullOrEmpty(me.TINNumber)) missingFields.Add("TIN");
+
+                        if (missingFields.Any())
+                            topbarAlerts.Add($"Your {string.Join(", ", missingFields)} information is incomplete. Please coordinate with HR.");
+
+                        int myPendingCOE = DbContext.COERequests.Count(r => r.EmployeeID == employeeId && r.Status == "Pending");
+                        if (myPendingCOE > 0)
+                            topbarAlerts.Add($"You have {myPendingCOE} COE request(s) pending review.");
+                    }
+                }
+            }
         }
     }
 
@@ -103,12 +146,37 @@
                     </button>
                     <h5 class="mb-0">@ViewData["Title"]</h5>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn-bell" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            @if (topbarAlerts.Any())
+                            {
+                                <span class="badge bg-danger rounded-pill bell-badge">@topbarAlerts.Count</span>
+                            }
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end alert-dropdown">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            @if (!topbarAlerts.Any())
+                            {
+                                <li><span class="dropdown-item-text text-muted small">No alerts right now.</span></li>
+                            }
+                            else
+                            {
+                                foreach (var alert in topbarAlerts)
+                                {
+                                    <li><span class="dropdown-item-text small">@alert</span></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+
                     <span class="greeting">Hello, @User.Identity!.Name</span>
                     <span class="role-badge">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</span>
                 </div>
             </div>
-        }
+        }   
 
         <div class="page-content">
             @RenderBody()

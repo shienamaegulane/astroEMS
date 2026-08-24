@@ -66,6 +66,14 @@ namespace astroEMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GeneratePayroll(DateTime periodStart, DateTime periodEnd, DateTime payDate)
         {
+            bool overlapExists = await _context.PayrollPeriods.AnyAsync(p =>
+      periodStart <= p.PeriodEnd && periodEnd >= p.PeriodStart);
+
+            if (overlapExists)
+            {
+                TempData["Error"] = $"A payroll period overlapping {periodStart:MMM dd} - {periodEnd:MMM dd, yyyy} already exists. Please choose a different date range.";
+                return RedirectToAction(nameof(GeneratePayroll));
+            }
             var period = new PayrollPeriod
             {
                 PeriodStart = periodStart,

@@ -404,7 +404,7 @@ h5 {
         margin-left: 0 !important;
     }
 }
-/* ---------- PROFILE PHOTO EDIT ICON ---------- */
+/* ---------- PROFILE PHOTO EDIT IC ON ---------- */
 
 .photo-wrapper {
     position: relative;
@@ -431,4 +431,40 @@ h5 {
 
     .photo-edit-btn:hover {
         background: #b8931f;
+    }
+
+
+
+.btn-bell {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--navy);
+    padding: 0.25rem 0.4rem;
+}
+
+.bell-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+}
+
+.alert-dropdown {
+    min-width: 320px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+    .alert-dropdown .dropdown-item-text {
+        white-space: normal;
+        padding: 0.4rem 1rem;
+        color: var(--text);
+    }
+
+    .alert-dropdown .dropdown-divider {
+        margin: 0;
     }

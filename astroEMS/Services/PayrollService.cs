@@ -21,10 +21,7 @@ namespace astroEMS.Services
             _context = context;
         }
 
-        /// <summary>
-        /// Generates payslips for all active employees for the given payroll period.
-        /// Skips employees who already have a payslip for this period.
-        /// </summary>
+       
         public async Task<(int generated, int skipped)> GeneratePayrollAsync(int periodId)
         {
             var period = await _context.PayrollPeriods.FindAsync(periodId);
@@ -101,12 +98,12 @@ namespace astroEMS.Services
                 }
             }
 
-            // ---- Earnings ----
+            
             decimal basicPay;
 
             if (employee.EmploymentType == "Contractual")
             {
-                // No-work-no-pay: paid only for days actually worked (Present + Late count as worked)
+                // No-work-no-pay: paid only for days actually worked 
                 int daysWorked = daysPresent + daysLate;
                 basicPay = Math.Round(dailyRate * daysWorked, 2);
             }
@@ -157,10 +154,7 @@ namespace astroEMS.Services
             };
         }
 
-        /// <summary>
-        /// Simplified semi-monthly withholding tax based on TRAIN law annual brackets.
-        /// Not a substitute for official BIR computation - configurable/simplified for capstone scope.
-        /// </summary>
+  
         private decimal CalculateWithholdingTax(decimal monthlyBasicSalary)
         {
             decimal annualIncome = monthlyBasicSalary * 12;

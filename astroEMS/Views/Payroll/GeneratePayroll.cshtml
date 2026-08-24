@@ -4,6 +4,10 @@
 
 <h3 class="mb-4"><i class="bi bi-cash-stack me-2"></i>Generate Payroll</h3>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 <div class="card" style="max-width:500px;">
     <div class="card-body">
         <form asp-action="GeneratePayroll" method="post">

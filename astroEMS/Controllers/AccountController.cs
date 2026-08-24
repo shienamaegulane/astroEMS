@@ -48,13 +48,17 @@ namespace astroEMS.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Name, user.Employee?.FirstName ?? user.Username),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("EmployeeID", user.EmployeeID.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+            {
+                IsPersistent = false,
+                AllowRefresh = true
+            });
 
             return RedirectToAction("Index", "Employees");
         }

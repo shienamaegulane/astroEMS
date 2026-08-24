@@ -19,13 +19,27 @@ namespace astroEMS.Controllers
             _context = context;
         }
 
-        // Standard shift times used to determine Late / OT status
-        private static readonly TimeSpan ShiftStart = new TimeSpan(8, 0, 0);
-        private static readonly TimeSpan LateGraceCutoff = new TimeSpan(8, 15, 0);
-        private static readonly TimeSpan ShiftEnd = new TimeSpan(17, 0, 0);
-        private static readonly TimeSpan AbsentTimeInCutoff = new TimeSpan(9, 0, 0);  
-        private static readonly TimeSpan AbsentLunchInCutoff = new TimeSpan(14, 0, 0); 
+        private static readonly TimeSpan MorningStart = new TimeSpan(8, 0, 0);
+        private static readonly TimeSpan MorningLateStart = new TimeSpan(8, 16, 0);
+        private static readonly TimeSpan MorningAbsentCutoff = new TimeSpan(9, 0, 0);
+        private static readonly TimeSpan AfternoonLateStart = new TimeSpan(13, 31, 0); // 1:31 PM
+        private static readonly TimeSpan AfternoonAbsentCutoff = new TimeSpan(14, 0, 0); // 2:00 PM
 
+        private static readonly TimeSpan ShiftEnd = new TimeSpan(17, 0, 0);
+
+        private string GetMorningStatus(TimeSpan? timeIn)
+        {
+            if (!timeIn.HasValue || timeIn.Value >= MorningAbsentCutoff) return "Absent";
+            if (timeIn.Value >= MorningLateStart) return "Late";
+            return "Present";
+        }
+
+        private string GetAfternoonStatus(TimeSpan? lunchIn)
+        {
+            if (!lunchIn.HasValue || lunchIn.Value >= AfternoonAbsentCutoff) return "Absent";
+            if (lunchIn.Value >= AfternoonLateStart) return "Late";
+            return "Present";
+        }
         // GET: Today's Attendance only
         public async Task<IActionResult> Index()
         {
@@ -315,13 +329,15 @@ namespace astroEMS.Controllers
             return (decimal)(timeOut.Value - ShiftEnd).TotalHours;
         }
 
-        private string DetermineStatus(TimeSpan? timeIn, TimeSpan? lunchIn = null)
+        private string DetermineStatus(TimeSpan? timeIn, TimeSpan? lunchIn)
         {
-            if (timeIn == null) return "Absent";
-            if (timeIn > AbsentTimeInCutoff) return "Absent";     
-            if (lunchIn.HasValue && lunchIn.Value > AbsentLunchInCutoff) return "Absent"; 
-            if (timeIn > LateGraceCutoff) return "Late";
-            return "Present";
+            string morning = GetMorningStatus(timeIn);
+            string afternoon = GetAfternoonStatus(lunchIn);
+
+            if (morning == "Absent" && afternoon == "Absent") return "Absent";
+            if (morning == "Present" && afternoon == "Present") return "Present";
+            if (morning == "Absent" || afternoon == "Absent") return "Half Day";
+            return "Late"; 
         }
     }
 }

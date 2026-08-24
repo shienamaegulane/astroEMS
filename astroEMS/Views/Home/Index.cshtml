@@ -13,7 +13,7 @@
     <div class="card mb-4">
         <div class="card-header"><i class="bi bi-exclamation-triangle text-warning me-1"></i> <strong>Alerts</strong></div>
         <div class="list-group list-group-flush">
-            @foreach (var alert in Model.Alerts)
+            @foreach (var alert in Model.Alerts.Take(2))
             {
                 <div class="list-group-item small">@alert</div>
             }
