@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using astroEMS.Models;
+using astroEMS.Services;
 
 namespace astroEMS.Data
 {
@@ -18,5 +19,11 @@ namespace astroEMS.Data
         public DbSet<Payslip> Payslips { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Position> Positions { get; set; }
+        public DbSet<SSSContributionTable> SSSContributionTables => Set<SSSContributionTable>();
+        public DbSet<SSSContributionBracket> SSSContributionBrackets => Set<SSSContributionBracket>();
+        public DbSet<PhilHealthSetting> PhilHealthSettings => Set<PhilHealthSetting>();
+        public DbSet<PagIbigContributionTable> PagIbigContributionTables => Set<PagIbigContributionTable>();
+        public DbSet<PagIbigContributionBracket> PagIbigContributionBrackets => Set<PagIbigContributionBracket>();
+        public DbSet<WithholdingTaxBracket> WithholdingTaxBrackets => Set<WithholdingTaxBracket>();
     }
 }

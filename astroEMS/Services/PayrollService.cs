@@ -7,21 +7,24 @@ namespace astroEMS.Services
     public class PayrollService
     {
         private readonly AppDbContext _context;
+        private readonly IGovernmentContributionService _govService;
 
-        // ---- Configurable payroll constants ----
+        // ---- Constants that are genuinely fixed by company policy / labor code,
+        // NOT government-revisable rate tables, so they stay as code constants ----
         private const int PayrollDivisor = 22;          // working days per month
         private const int RegularHoursPerDay = 8;
         private const decimal OvertimeMultiplier = 1.25m;
+        private const int PayPeriodsPerYear = 24;        // semi-monthly cutoffs
 
         private static readonly TimeSpan ShiftStart = new TimeSpan(8, 0, 0);   // 8:00 AM
         private static readonly TimeSpan ShiftEnd = new TimeSpan(17, 0, 0);    // 5:00 PM
 
-        public PayrollService(AppDbContext context)
+        public PayrollService(AppDbContext context, IGovernmentContributionService govService)
         {
             _context = context;
+            _govService = govService;
         }
 
-       
         public async Task<(int generated, int skipped)> GeneratePayrollAsync(int periodId)
         {
             var period = await _context.PayrollPeriods.FindAsync(periodId);
@@ -98,12 +101,11 @@ namespace astroEMS.Services
                 }
             }
 
-            
             decimal basicPay;
 
             if (employee.EmploymentType == "Contractual")
             {
-                // No-work-no-pay: paid only for days actually worked 
+                // No-work-no-pay: paid only for days actually worked
                 int daysWorked = daysPresent + daysLate;
                 basicPay = Math.Round(dailyRate * daysWorked, 2);
             }
@@ -120,10 +122,21 @@ namespace astroEMS.Services
             decimal lateDeduction = Math.Round(totalLateMinutes * minuteRate, 2);
             decimal undertimeDeduction = Math.Round(totalUndertimeMinutes * minuteRate, 2);
 
-            decimal sssDeduction = Math.Round((employee.BasicSalary * 0.05m) / 2, 2);
-            decimal philHealthDeduction = Math.Round((employee.BasicSalary * 0.025m) / 2, 2);
-            decimal pagIbigDeduction = 100m / 2; // flat rate, per cutoff
-            decimal withholdingTax = CalculateWithholdingTax(employee.BasicSalary);
+            // Government contributions are looked up from effective-dated tables
+            // as of the period's end date, NOT computed from formulas here.
+            var sss = await _govService.CalculateSSSAsync(employee.BasicSalary, period.PeriodEnd);
+            var philHealth = await _govService.CalculatePhilHealthAsync(employee.BasicSalary, period.PeriodEnd);
+            var pagIbig = await _govService.CalculatePagIbigAsync(employee.BasicSalary, period.PeriodEnd);
+
+            // Each of these is a full MONTHLY employee share; split across the
+            // two semi-monthly cutoffs the same way the previous code did.
+            decimal sssDeduction = Math.Round(sss.EmployeeShare / 2, 2);
+            decimal philHealthDeduction = Math.Round(philHealth.EmployeeShare / 2, 2);
+            decimal pagIbigDeduction = Math.Round(pagIbig.EmployeeShare / 2, 2);
+
+            decimal annualTaxableIncome = employee.BasicSalary * 12;
+            decimal annualTax = await _govService.CalculateAnnualWithholdingTaxAsync(annualTaxableIncome, period.PeriodEnd);
+            decimal withholdingTax = Math.Round(annualTax / PayPeriodsPerYear, 2);
 
             decimal totalDeductions = lateDeduction + undertimeDeduction + sssDeduction
                 + philHealthDeduction + pagIbigDeduction + withholdingTax;
@@ -152,23 +165,6 @@ namespace astroEMS.Services
                 TotalDeductions = Math.Round(totalDeductions, 2),
                 NetPay = Math.Round(netPay, 2)
             };
-        }
-
-  
-        private decimal CalculateWithholdingTax(decimal monthlyBasicSalary)
-        {
-            decimal annualIncome = monthlyBasicSalary * 12;
-            decimal annualTax;
-
-            if (annualIncome <= 250000) annualTax = 0;
-            else if (annualIncome <= 400000) annualTax = (annualIncome - 250000) * 0.15m;
-            else if (annualIncome <= 800000) annualTax = 22500 + (annualIncome - 400000) * 0.20m;
-            else if (annualIncome <= 2000000) annualTax = 102500 + (annualIncome - 800000) * 0.25m;
-            else if (annualIncome <= 8000000) annualTax = 402500 + (annualIncome - 2000000) * 0.30m;
-            else annualTax = 2202500 + (annualIncome - 8000000) * 0.35m;
-
-            // annual -> semi-monthly (24 pay periods/year)
-            return Math.Round(annualTax / 24, 2);
         }
     }
 }
