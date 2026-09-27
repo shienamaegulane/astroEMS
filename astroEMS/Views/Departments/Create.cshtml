@@ -1,21 +1,62 @@
 @model astroEMS.Models.Department
+
 @{
     ViewData["Title"] = "Add Department";
 }
 
-<h3 class="mb-4"><i class="bi bi-diagram-3 me-2"></i>Add Department</h3>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Organization</p>
+            <h1>Add Department</h1>
+            <p class="dashboard-intro-description">
+                Create a department for organizing employee records.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-diagram-3" aria-hidden="true"></i>
+            Departments
+        </p>
+    </header>
 
-<div class="card" style="max-width:450px;">
-    <div class="card-body">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <section class="card dashboard-panel" style="max-width: 640px;" aria-labelledby="department-form-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                <div>
+                    <h2 id="department-form-heading">Department details</h2>
+                    <p>Enter the name employees will see throughout the system.</p>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-        </form>
-    </div>
+        </div>
+
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label fw-semibold">Department name</label>
+                    <input asp-for="Name"
+                           class="form-control"
+                           placeholder="e.g., Human Resources"
+                           autocomplete="off" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                        Create Department
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </section>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

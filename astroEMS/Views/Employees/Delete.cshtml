@@ -1,186 +1,60 @@
 @model astroEMS.Models.Employee
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Employee";
 }
 
-<h1>Delete</h1>
+<section class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Workforce directory</p>
+            <h1>Delete Employee</h1>
+            <p class="dashboard-intro-description">
+                Review the employee record before confirming deletion.
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back to Employees
+        </a>
+    </header>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>astroEMS.Models.Employee</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EmployeeNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EmployeeNumber)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MiddleName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MiddleName)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Gender)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Gender)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateOfBirth)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateOfBirth)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ContactNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ContactNumber)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Department)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Department)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Position)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Position)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateHired)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateHired)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EmploymentStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EmploymentStatus)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EmploymentType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EmploymentType)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BasicSalary)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BasicSalary)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SSSNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SSSNumber)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhilHealthNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhilHealthNumber)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PagIBIGNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PagIBIGNumber)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TINNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TINNumber)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateCreated)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateCreated)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateUpdated)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateUpdated)
-        </dd>
-    </dl>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="EmployeeID" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div>
+    <div class="card">
+        <div class="card-header dashboard-panel-header">
+            <i class="bi bi-exclamation-triangle text-danger" aria-hidden="true"></i>
+            <div>
+                <h2>Confirm Deletion</h2>
+                <p>This action will delete the selected employee record.</p>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="alert alert-danger" role="alert">
+                Are you sure you want to delete
+                <strong>@Model.FirstName @Model.LastName</strong>?
+            </div>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-4 col-lg-3">Employee number</dt>
+                <dd class="col-sm-8 col-lg-9">@Model.EmployeeNumber</dd>
+
+                <dt class="col-sm-4 col-lg-3">Name</dt>
+                <dd class="col-sm-8 col-lg-9">@Model.FirstName @Model.LastName</dd>
+
+                <dt class="col-sm-4 col-lg-3">Department</dt>
+                <dd class="col-sm-8 col-lg-9">@Model.Department</dd>
+
+                <dt class="col-sm-4 col-lg-3">Position</dt>
+                <dd class="col-sm-8 col-lg-9">@Model.Position</dd>
+
+                <dt class="col-sm-4 col-lg-3">Employment status</dt>
+                <dd class="col-sm-8 col-lg-9">@Model.EmploymentStatus</dd>
+            </dl>
+
+            <form asp-action="Delete" class="d-flex flex-wrap justify-content-end gap-2">
+                <input type="hidden" asp-for="EmployeeID" />
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                <input type="submit" value="Delete Employee" class="btn btn-danger" />
+            </form>
+        </div>
+    </div>
+</section>

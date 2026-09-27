@@ -6,132 +6,208 @@
     var allTypes = ViewBag.AllDocumentTypes as List<string>;
 }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Employee records</p>
+            <h1>Employee Documents</h1>
+            <p class="dashboard-intro-description">
+                @employee?.FirstName @employee?.LastName
+                &bull; @employee?.Department
+                &bull; @employee?.EmployeeNumber
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-folder2-open" aria-hidden="true"></i>
+            Documents
+        </p>
+    </header>
 
-<h3 class="mb-1"><i class="bi bi-folder2-open me-2"></i>Employee Documents</h3>
-<p class="text-muted mb-1">Employee ID: @employee?.EmployeeNumber</p>
-<p class="text-muted mb-4">@employee?.FirstName @employee?.LastName &bull; @employee?.Department</p>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="status">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+    }
 
-<div class="row">
-    <div class="col-md-7">
-        <div class="card mb-4">
-            <div class="card-header">Document Checklist</div>
-            <div class="list-group list-group-flush">
-                @foreach (var item in checklist!)
-                {
-                    bool uploaded = item.Document != null;
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <section class="card dashboard-panel" aria-labelledby="document-checklist-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-list-check" aria-hidden="true"></i>
                         <div>
+                            <h2 id="document-checklist-heading">Document checklist</h2>
+                            <p>See which required documents are available.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush">
+                    @foreach (var item in checklist!)
+                    {
+                        bool uploaded = item.Document != null;
+                        <div class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-3 p-3">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi @(uploaded ? "bi-check-circle-fill text-success" : "bi-x-circle-fill text-danger") mt-1"
+                                   aria-hidden="true"></i>
+                                <div>
+                                    <div class="fw-semibold">@item.Type</div>
+                                    @if (!uploaded)
+                                    {
+                                        <div class="text-muted small">Not uploaded</div>
+                                    }
+                                    @if (uploaded && !string.IsNullOrEmpty(item.Document.Remarks))
+                                    {
+                                        <div class="text-muted small">@item.Document.Remarks</div>
+                                    }
+                                </div>
+                            </div>
                             @if (uploaded)
                             {
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            }
-                            else
-                            {
-                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
-                            }
-                            <strong>@item.Type</strong>
-                            @if (!uploaded)
-                            {
-                                <span class="text-muted small"> (Not Uploaded)</span>
-                            }
-                            @if (uploaded && !string.IsNullOrEmpty(item.Document.Remarks))
-                            {
-                                <div class="text-muted small ms-4">@item.Document.Remarks</div>
+                                <a href="@item.Document.FilePath"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye me-1" aria-hidden="true"></i>
+                                    View
+                                </a>
                             }
                         </div>
-                        @if (uploaded)
-                        {
-                            <a href="@item.Document.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        }
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-5">
+            @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+            {
+                <section class="card dashboard-panel" aria-labelledby="upload-document-heading">
+                    <div class="card-header">
+                        <div class="dashboard-panel-header">
+                            <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+                            <div>
+                                <h2 id="upload-document-heading">Upload document</h2>
+                                <p>Add a file to this employee’s records.</p>
+                            </div>
+                        </div>
                     </div>
-                }
-            </div>
+                    <div class="card-body p-4">
+                        <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="employeeId" value="@employee?.EmployeeID" />
+
+                            <div class="mb-3">
+                                <label for="documentType" class="form-label fw-semibold">Document type</label>
+                                <select id="documentType" name="documentType" class="form-select" required>
+                                    <option value="">-- Select Type --</option>
+                                    @foreach (var type in allTypes!)
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="documentFile" class="form-label fw-semibold">Choose file</label>
+                                <input id="documentFile"
+                                       type="file"
+                                       name="file"
+                                       class="form-control"
+                                       accept=".pdf,.jpg,.jpeg,.png,.docx"
+                                       required />
+                                <div class="form-text">PDF, JPG, PNG, or DOCX.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="documentRemarks" class="form-label fw-semibold">Remarks (optional)</label>
+                                <input id="documentRemarks"
+                                       type="text"
+                                       name="remarks"
+                                       class="form-control"
+                                       placeholder="e.g., Received July 15, 2026" />
+                            </div>
+
+                            <button type="submit" class="btn btn-gold w-100">
+                                <i class="bi bi-upload me-1" aria-hidden="true"></i>
+                                Upload Document
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            }
         </div>
     </div>
 
-    <div class="col-md-5">
-        @if (User.IsInRole("Admin") || User.IsInRole("HR"))
-        {
-            <div class="card mb-4">
-                <div class="card-header">Upload Document</div>
-                <div class="card-body">
-                    <form asp-action="Upload" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="employeeId" value="@employee?.EmployeeID" />
-                        <div class="mb-3">
-                            <label class="form-label">Document Type</label>
-                            <select name="documentType" class="form-select" required>
-                                <option value="">-- Select Type --</option>
-                                @foreach (var type in allTypes!)
-                                {
-                                    <option value="@type">@type</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Choose File</label>
-                            <input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.docx" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Remarks (optional)</label>
-                            <input type="text" name="remarks" class="form-control" placeholder="e.g. Received July 15, 2026" />
-                        </div>
-                        <button type="submit" class="btn btn-gold w-100"><i class="bi bi-upload"></i> Upload</button>
-                    </form>
+    @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+    {
+        <section class="card dashboard-panel" aria-labelledby="document-history-heading">
+            <div class="card-header">
+                <div class="dashboard-panel-header">
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    <div>
+                        <h2 id="document-history-heading">Uploaded files</h2>
+                        <p>Full document history for this employee.</p>
+                    </div>
                 </div>
             </div>
-        }
-    </div>
-</div>
-
-@if (User.IsInRole("Admin") || User.IsInRole("HR"))
-{
-    <div class="card">
-        <div class="card-header">All Uploaded Files (Full History)</div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead style="background-color:#F5F7FA;">
-                    <tr>
-                        <th class="ps-4">Type</th>
-                        <th>File Name</th>
-                        <th>Remarks</th>
-                        <th>Uploaded</th>
-                        <th class="text-end pe-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var doc in Model)
-                    {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <td class="ps-4"><span class="badge bg-secondary">@doc.DocumentType</span></td>
-                            <td>@doc.FileName</td>
-                            <td class="text-muted small">@doc.Remarks</td>
-                            <td>@doc.UploadedAt.ToString("MMM dd, yyyy")</td>
-                            <td class="text-end pe-4">
-                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <form asp-action="Delete" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@doc.DocumentID" />
-                                    <input type="hidden" name="employeeId" value="@employee?.EmployeeID" />
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this document?');">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
+                            <th scope="col" class="ps-4">Type</th>
+                            <th scope="col">File name</th>
+                            <th scope="col">Remarks</th>
+                            <th scope="col">Uploaded</th>
+                            <th scope="col" class="text-end pe-4">Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-}
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="dashboard-empty py-5">
+                                    No documents have been uploaded yet.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var doc in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="badge bg-secondary">@doc.DocumentType</span>
+                                </td>
+                                <td class="fw-semibold">@doc.FileName</td>
+                                <td class="text-muted small">@doc.Remarks</td>
+                                <td>@doc.UploadedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1">
+                                        <a href="@doc.FilePath"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="btn btn-sm btn-outline-primary"
+                                           aria-label="View @doc.FileName"
+                                           title="View">
+                                            <i class="bi bi-eye" aria-hidden="true"></i>
+                                        </a>
+                                        <form asp-action="Delete" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@doc.DocumentID" />
+                                            <input type="hidden" name="employeeId" value="@employee?.EmployeeID" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    aria-label="Delete @doc.FileName"
+                                                    title="Delete"
+                                                    onclick="return confirm('Delete this document?');">
+                                                <i class="bi bi-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    }
+</div>

@@ -3,38 +3,67 @@
     ViewData["Title"] = "Employee Master List";
 }
 
-<h3 class="mb-4"><i class="bi bi-people me-2"></i>Employee Master List</h3>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Reports</p>
+            <h1>Employee Master List</h1>
+            <p class="dashboard-intro-description">
+                Review employee details across departments and positions.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-people" aria-hidden="true"></i>
+            Employee report
+        </p>
+    </header>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Employee No.</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Position</th>
-                    <th>Date Hired</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var e in Model)
-                {
+    <section class="card dashboard-panel" aria-labelledby="employee-report-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-list-ul" aria-hidden="true"></i>
+                <div>
+                    <h2 id="employee-report-heading">Employee records</h2>
+                    <p>Employee number, position, hire date, and employment status.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td class="ps-4">@e.EmployeeNumber</td>
-                        <td>@e.FirstName @e.LastName</td>
-                        <td>@e.Department</td>
-                        <td>@e.Position</td>
-                        <td>@e.DateHired.ToString("MMM dd, yyyy")</td>
-                        <td>@e.EmploymentType</td>
-                        <td>@e.EmploymentStatus</td>
+                        <th scope="col" class="ps-4">Employee No.</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Department</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Date Hired</th>
+                        <th scope="col">Type</th>
+                        <th scope="col" class="pe-4">Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">@e.EmployeeNumber</td>
+                            <td class="fw-semibold">@e.FirstName @e.LastName</td>
+                            <td>@e.Department</td>
+                            <td>@e.Position</td>
+                            <td>@e.DateHired.ToString("MMM dd, yyyy")</td>
+                            <td>@e.EmploymentType</td>
+                            <td class="pe-4">@e.EmploymentStatus</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Back to Reports
+        </a>
     </div>
 </div>
-
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">Back to Reports</a>

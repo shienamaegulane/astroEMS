@@ -1,22 +1,60 @@
 @model astroEMS.Models.Department
+
 @{
     ViewData["Title"] = "Edit Department";
 }
 
-<h3 class="mb-4"><i class="bi bi-diagram-3 me-2"></i>Edit Department</h3>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Organization</p>
+            <h1>Edit Department</h1>
+            <p class="dashboard-intro-description">
+                Update the department name shown across the system.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-diagram-3" aria-hidden="true"></i>
+            Departments
+        </p>
+    </header>
 
-<div class="card" style="max-width:450px;">
-    <div class="card-body">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="DepartmentID" />
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <section class="card dashboard-panel" style="max-width: 640px;" aria-labelledby="department-form-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                <div>
+                    <h2 id="department-form-heading">Department details</h2>
+                    <p>Edit the name, then save your changes.</p>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-        </form>
-    </div>
+        </div>
+
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <input type="hidden" asp-for="DepartmentID" />
+
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label fw-semibold">Department name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                        Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </section>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

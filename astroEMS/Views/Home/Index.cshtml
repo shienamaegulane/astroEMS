@@ -1,125 +1,222 @@
 ﻿@model astroEMS.Models.DashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="mb-4">
-    <h3 class="mb-0">Operations Overview</h3>
-    <p class="text-muted">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
-</div>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Attendance &amp; Payroll Management</p>
+            <h1>Operations Overview</h1>
+            <p class="dashboard-intro-description">
+                Workforce and daily attendance at a glance.
+            </p>
+        </div>
 
-@if (Model.Alerts.Any())
-{
-    <div class="card mb-4">
-        <div class="card-header"><i class="bi bi-exclamation-triangle text-warning me-1"></i> <strong>Alerts</strong></div>
-        <div class="list-group list-group-flush">
-            @foreach (var alert in Model.Alerts.Take(2))
-            {
-                <div class="list-group-item small">@alert</div>
-            }
-        </div>
-    </div>
-}
+        <p class="dashboard-intro-date">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            <time datetime="@DateTime.Today.ToString("yyyy-MM-dd")">
+                @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
+            </time>
+        </p>
+    </header>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Total Employees</div>
-                <div class="fs-3 fw-bold text-navy">@Model.TotalEmployees</div>
+    <section class="dashboard-metrics" aria-label="Workforce and attendance metrics">
+        <div class="dashboard-stat">
+            <div class="dashboard-stat-top">
+                <p class="dashboard-stat-label">Total Employees</p>
+                <span class="dashboard-stat-icon">
+                    <i class="bi bi-people" aria-hidden="true"></i>
+                </span>
             </div>
+            <strong class="dashboard-stat-value">@Model.TotalEmployees</strong>
         </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Active</div>
-                <div class="fs-3 fw-bold text-success">@Model.ActiveEmployees</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Present Today</div>
-                <div class="fs-3 fw-bold text-success">@Model.PresentToday</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Late Today</div>
-                <div class="fs-3 fw-bold" style="color:#F9A825;">@Model.LateToday</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Absent Today</div>
-                <div class="fs-3 fw-bold text-danger">@Model.AbsentToday</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Pending COE</div>
-                <div class="fs-3 fw-bold" style="color:#C9A227;">@Model.PendingCOERequests</div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-7">
-        <div class="card">
-            <div class="card-header">Department Overview</div>
+        <div class="dashboard-stat dashboard-stat--positive">
+            <div class="dashboard-stat-top">
+                <p class="dashboard-stat-label">Active</p>
+                <span class="dashboard-stat-icon">
+                    <i class="bi bi-person-check" aria-hidden="true"></i>
+                </span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.ActiveEmployees</strong>
+        </div>
+
+        <div class="dashboard-stat dashboard-stat--positive">
+            <div class="dashboard-stat-top">
+                <p class="dashboard-stat-label">Present Today</p>
+                <span class="dashboard-stat-icon">
+                    <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                </span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.PresentToday</strong>
+        </div>
+
+        <div class="dashboard-stat dashboard-stat--caution">
+            <div class="dashboard-stat-top">
+                <p class="dashboard-stat-label">Late Today</p>
+                <span class="dashboard-stat-icon">
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                </span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.LateToday</strong>
+        </div>
+
+        <div class="dashboard-stat dashboard-stat--negative">
+            <div class="dashboard-stat-top">
+                <p class="dashboard-stat-label">Absent Today</p>
+                <span class="dashboard-stat-icon">
+                    <i class="bi bi-person-x" aria-hidden="true"></i>
+                </span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.AbsentToday</strong>
+        </div>
+
+        <div class="dashboard-stat dashboard-stat--pending">
+            <div class="dashboard-stat-top">
+                <p class="dashboard-stat-label">Pending COE</p>
+                <span class="dashboard-stat-icon">
+                    <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                </span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.PendingCOERequests</strong>
+        </div>
+    </section>
+
+    @if (Model.Alerts.Any())
+    {
+        <section class="card dashboard-panel" aria-labelledby="dashboard-alerts-heading">
+            <div class="card-header dashboard-panel-header">
+                <i class="bi bi-exclamation-diamond" aria-hidden="true"></i>
+                <div>
+                    <h2 id="dashboard-alerts-heading">Alerts</h2>
+                    <p>Items that may need attention</p>
+                </div>
+            </div>
+
+            <div class="dashboard-alert-list">
+                @foreach (var alert in Model.Alerts.Take(2))
+                {
+                    <div class="dashboard-alert-item">
+                        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                        <span>@alert</span>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <div class="dashboard-panel-grid">
+        <section class="card dashboard-panel" aria-labelledby="dashboard-departments-heading">
+            <div class="card-header dashboard-panel-header">
+                <i class="bi bi-diagram-3" aria-hidden="true"></i>
+                <div>
+                    <h2 id="dashboard-departments-heading">Department Overview</h2>
+                    <p>Employees by department</p>
+                </div>
+            </div>
+
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead style="background-color:#F5F7FA;">
-                        <tr><th class="ps-4">Department</th><th>Employees</th></tr>
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Department</th>
+                            <th scope="col">Employees</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        @foreach (var d in Model.DepartmentBreakdown)
+                        @if (Model.DepartmentBreakdown.Any())
                         {
-                            <tr><td class="ps-4">@d.Department</td><td>@d.Count</td></tr>
+                            @foreach (var d in Model.DepartmentBreakdown)
+                            {
+                                <tr>
+                                    <th scope="row">@d.Department</th>
+                                    <td>@d.Count</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="dashboard-empty">
+                                    No department data available.
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="col-md-5">
-        <div class="card">
-            <div class="card-header">Employment Type</div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span>Regular</span><strong>@Model.RegularEmployees</strong>
-                </div>
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span>Probationary</span><strong>@Model.ProbationaryEmployees</strong>
-                </div>
-                <div class="d-flex justify-content-between py-2">
-                    <span>Contractual</span><strong>@Model.ContractualEmployees</strong>
+        <section class="card dashboard-panel" aria-labelledby="dashboard-employment-heading">
+            <div class="card-header dashboard-panel-header">
+                <i class="bi bi-person-badge" aria-hidden="true"></i>
+                <div>
+                    <h2 id="dashboard-employment-heading">Employment Type</h2>
+                    <p>Current workforce composition</p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div class="card">
-    <div class="card-header">Quick Actions</div>
-    <div class="card-body d-flex gap-2 flex-wrap">
-        @if (User.IsInRole("Admin") || User.IsInRole("HR"))
-        {
-            <a asp-controller="Employees" asp-action="Create" class="btn btn-outline-primary btn-sm"><i class="bi bi-person-plus"></i> Add Employee</a>
-            <a asp-controller="Attendance" asp-action="Import" class="btn btn-outline-primary btn-sm"><i class="bi bi-upload"></i> Import Attendance</a>
-            <a asp-controller="Payroll" asp-action="GeneratePayroll" class="btn btn-outline-primary btn-sm"><i class="bi bi-cash-stack"></i> Generate Payroll</a>
-            <a asp-controller="COE" asp-action="Index" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-check"></i> COE Requests</a>
-        }
-        <a asp-controller="Attendance" asp-action="Summary" class="btn btn-outline-secondary btn-sm"><i class="bi bi-bar-chart-line"></i> Attendance Summary</a>
+            <ul class="dashboard-employment">
+                <li>
+                    <span>Regular</span>
+                    <strong>@Model.RegularEmployees</strong>
+                </li>
+                <li>
+                    <span>Probationary</span>
+                    <strong>@Model.ProbationaryEmployees</strong>
+                </li>
+                <li>
+                    <span>Contractual</span>
+                    <strong>@Model.ContractualEmployees</strong>
+                </li>
+            </ul>
+        </section>
     </div>
+
+    <section class="card dashboard-panel" aria-labelledby="dashboard-actions-heading">
+        <div class="card-header dashboard-panel-header">
+            <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+            <div>
+                <h2 id="dashboard-actions-heading">Quick Actions</h2>
+                <p>Common workforce tasks</p>
+            </div>
+        </div>
+
+        <div class="card-body dashboard-quick-actions">
+            @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+            {
+                <a asp-controller="Employees" asp-action="Create"
+                   class="btn btn-primary btn-sm">
+                    <i class="bi bi-person-plus" aria-hidden="true"></i>
+                    Add Employee
+                </a>
+
+                <a asp-controller="Attendance" asp-action="Import"
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-upload" aria-hidden="true"></i>
+                    Import Attendance
+                </a>
+
+                <a asp-controller="Payroll" asp-action="GeneratePayroll"
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-cash-stack" aria-hidden="true"></i>
+                    Generate Payroll
+                </a>
+
+                <a asp-controller="COE" asp-action="Index"
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-file-earmark-check" aria-hidden="true"></i>
+                    COE Requests
+                </a>
+            }
+
+            <a asp-controller="Attendance" asp-action="Summary"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
+                Attendance Summary
+            </a>
+        </div>
+    </section>
 </div>

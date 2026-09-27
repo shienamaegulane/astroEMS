@@ -1,34 +1,136 @@
 ﻿@model IEnumerable<astroEMS.Models.Position>
+
 @{
     ViewData["Title"] = "Positions";
+    var positionCount = Model.Count();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-briefcase me-2"></i>Positions</h3>
-    <a asp-action="Create" class="btn btn-gold"><i class="bi bi-plus-lg"></i> Add Position</a>
-</div>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Organization</p>
+            <h1>Positions</h1>
+            <p class="dashboard-intro-description">
+                Manage the job positions used in employee records.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-briefcase" aria-hidden="true"></i>
+            @positionCount position@(positionCount == 1 ? "" : "s")
+        </p>
+    </header>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Position Name</th>
-                    <th class="text-end pe-4">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="ps-4">@item.Name</td>
-                        <td class="text-end pe-4">
-                            <a asp-action="Edit" asp-route-positionid="@item.PositionID" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                            <a asp-action="Delete" asp-route-positionid="@item.PositionID" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <section class="card dashboard-panel" aria-labelledby="positions-heading">
+        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-briefcase" aria-hidden="true"></i>
+                <div>
+                    <h2 id="positions-heading">Position directory</h2>
+                    <p>View and maintain your organization’s positions.</p>
+                </div>
+            </div>
+            <a asp-action="Create" class="btn btn-gold">
+                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+                Add Position
+            </a>
+        </div>
+
+        @if (positionCount == 0)
+        {
+            <div class="dashboard-empty py-5">
+                <i class="bi bi-briefcase fs-2 d-block mb-2" aria-hidden="true"></i>
+                No positions have been added yet.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="ps-4">Position name</th>
+                            <th scope="col" class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-semibold">@item.Name</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                        <a asp-action="Details"
+                                           asp-route-positionid="@item.PositionID"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           aria-label="View @item.Name details"
+                                           title="View details">
+                                            <i class="bi bi-eye" aria-hidden="true"></i>
+                                        </a>
+                                        <a asp-action="Edit"
+                                           asp-route-positionid="@item.PositionID"
+                                           class="btn btn-sm btn-outline-primary"
+                                           aria-label="Edit @item.Name"
+                                           title="Edit">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deletePositionModal-@item.PositionID"
+                                                aria-label="Delete @item.Name"
+                                                title="Delete">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @foreach (var item in Model)
+            {
+                <div class="modal fade"
+                     id="deletePositionModal-@item.PositionID"
+                     tabindex="-1"
+                     aria-labelledby="deletePositionTitle-@item.PositionID"
+                     aria-describedby="deletePositionDescription-@item.PositionID"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="deletePositionTitle-@item.PositionID">
+                                    Delete position
+                                </h2>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="deletePositionDescription-@item.PositionID">
+                                Are you sure you want to delete <strong>@item.Name</strong>?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cancel
+                                </button>
+                                <form asp-action="Delete"
+                                      asp-route-positionid="@item.PositionID"
+                                      method="post"
+                                      asp-antiforgery="true">
+                                    <input type="hidden" name="positionid" value="@item.PositionID" />
+                                    <button type="submit" class="btn btn-danger">
+                                        Delete position
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </section>
 </div>

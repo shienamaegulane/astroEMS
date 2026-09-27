@@ -1,67 +1,123 @@
 ﻿@model IEnumerable<astroEMS.Models.Attendance>
+
 @{
     ViewData["Title"] = "My Attendance Record";
 }
 
-<h3 class="mb-1"><i class="bi bi-calendar-check me-2"></i>My Attendance Record</h3>
-<p class="text-muted mb-4">Showing records from @ViewBag.StartDate to @ViewBag.EndDate</p>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">My Attendance</p>
+            <h1>My Attendance Record</h1>
+            <p class="dashboard-intro-description">
+                Review your recorded times and attendance status.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-calendar-range" aria-hidden="true"></i>
+            @ViewBag.StartDate – @ViewBag.EndDate
+        </p>
+    </header>
 
-<div class="card mb-4">
-    <div class="card-body py-2">
-        <form asp-action="MyRecord" method="get" class="d-flex gap-2 align-items-center">
-            <label class="mb-0 small text-muted">From</label>
-            <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control form-control-sm" style="max-width:170px;" />
-            <label class="mb-0 small text-muted">To</label>
-            <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control form-control-sm" style="max-width:170px;" />
-            <button type="submit" class="btn btn-sm btn-primary">Search</button>
-            <a asp-action="MyRecord" class="btn btn-sm btn-outline-secondary">Reset to Current Period</a>
-        </form>
+    <section class="card dashboard-panel" aria-labelledby="my-attendance-filter-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-calendar-range" aria-hidden="true"></i>
+                <div>
+                    <h2 id="my-attendance-filter-heading">Date range</h2>
+                    <p>Choose the period you want to review.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form asp-action="MyRecord" method="get" class="d-flex flex-wrap align-items-end gap-3">
+                <div>
+                    <label for="recordStartDate" class="form-label fw-semibold">From</label>
+                    <input id="recordStartDate"
+                           type="date"
+                           name="startDate"
+                           value="@ViewBag.StartDate"
+                           class="form-control" />
+                </div>
+                <div>
+                    <label for="recordEndDate" class="form-label fw-semibold">To</label>
+                    <input id="recordEndDate"
+                           type="date"
+                           name="endDate"
+                           value="@ViewBag.EndDate"
+                           class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search me-1" aria-hidden="true"></i>
+                    Search
+                </button>
+                <a asp-action="MyRecord" class="btn btn-outline-secondary">
+                    Reset to Current Period
+                </a>
+            </form>
+        </div>
+    </section>
+
+    <section class="card dashboard-panel" aria-labelledby="my-attendance-list-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-list-check" aria-hidden="true"></i>
+                <div>
+                    <h2 id="my-attendance-list-heading">Attendance records</h2>
+                    <p>Your daily time entries for the selected period.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col" class="ps-4">Date</th>
+                        <th scope="col">Time In</th>
+                        <th scope="col">Time Out</th>
+                        <th scope="col" class="pe-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="dashboard-empty py-5">
+                                No attendance records found for this period.
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-semibold">@a.AttendanceDate.ToString("dddd, MMM dd, yyyy")</td>
+                            <td>@(a.TimeIn.HasValue? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.TimeOut.HasValue? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
+                            <td class="pe-4">
+                                @{
+                                    string cls = a.Status switch
+                                    {
+                                        "Present" => "badge-active",
+                                        "Late" => "badge-late",
+                                        "Half Day" => "badge-halfday",
+                                        _ => "badge-absent"
+                                    };
+                                }
+                                <span class="badge @cls">@a.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div>
+        <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Back to My Profile
+        </a>
     </div>
 </div>
-
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Date</th>
-                    <th>Time In</th>
-                    <th>Time Out</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="4" class="text-center text-muted py-4">No attendance records found for this period.</td>
-                    </tr>
-                }
-                @foreach (var a in Model)
-                {
-                    <tr>
-                        <td class="ps-4">@a.AttendanceDate.ToString("dddd, MMM dd, yyyy")</td>
-                        <td>@(a.TimeIn.HasValue ? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
-                        <td>
-                            @{
-                                string cls = a.Status switch
-                                {
-                                    "Present" => "badge-active",
-                                    "Late" => "badge-late",
-                                    "Half Day" => "badge-halfday",
-                                    _ => "badge-absent"
-                                };
-                            }
-                            <span class="badge @cls">@a.Status</span>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">
-    <i class="bi bi-arrow-left"></i> Back to My Profile
-</a>

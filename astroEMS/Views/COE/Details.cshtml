@@ -1,74 +1,112 @@
-﻿
-@model astroEMS.Models.COERequest
+﻿@model astroEMS.Models.COERequest
+
 @{
     ViewData["Title"] = "COE Request Details";
-    string statusClass = Model.Status switch { "Approved" => "badge-active", "Rejected" => "badge-adbsent", _ => "badge-late" };
-} 
-<h3 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>COE Request Details</h3>
-<div class="card mb-4" style="max-width:600px">
-    <div class="card-header d-flex justify-content-between align-baseline-items-center">
-        <span>Request #@Model.RequestID</span>
-        <span class="badge @statusClass"> @Model.Status</span>
-    </div>
-    <div class="card-body">
-    <div class="row mb-3">
-        <div class="col -4 text-muted"> Employee</div>
-        <div class="col-8 fw-semibold">@Model.Employee?.FirstName @Model.Employee?.LastName</div>
-    </div>
-            <div class="row mb-3">
-                <div class="col -4 text-muted"> Employee Number</div>
-                <div class="col-8 fw-semibold">@Model.Employee?.EmployeeNumber</div>
-            </div>
-                <div class="row mb-3">
-                    <div class="col -4 text-muted"> Department</div>
-                    <div class="col-8 fw-semibold">@Model.Employee?.Department</div>
+
+    string statusClass = Model.Status switch
+    {
+        "Approved" => "badge-active",
+        "Rejected" => "badge-absent",
+        _ => "badge-late"
+    };
+}
+
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Employee documents</p>
+            <h1>COE Request Details</h1>
+            <p class="dashboard-intro-description">
+                Review request #@Model.RequestID and its processing status.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+            Request #@Model.RequestID
+        </p>
+    </header>
+
+    <section class="card dashboard-panel" style="max-width: 760px;" aria-labelledby="coe-details-heading">
+        <div class="card-header d-flex align-items-center justify-content-between gap-3">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-file-earmark-check" aria-hidden="true"></i>
+                <div>
+                    <h2 id="coe-details-heading">Request information</h2>
+                    <p>Employee, purpose, and review details.</p>
                 </div>
-                    <div class="row mb-3">
-                        <div class="col -4 text-muted"> Position</div>
-                        <div class="col-8 fw-semibold">@Model.Employee?.Position</div>
-                    </div >   
-                    <div class="row mb-3">
-                        <div class="col -4 text-muted"> Purpose</div>
-                        <div class="col-8 fw-semibold">@Model.Purpose</div>
-                    </div>
-                            <div class="row mb-3">
-                                <div class="col -4 text-muted"> Date Requested</div>
-                                <div class="col-8 fw-semibold">@Model.DateRequested.ToString("MMMM dd, yyyy -h:MMM tt")</div>
-                            </div>
-       
-        @if(Model.Status!= "Pending")
-        {
-            <div class="row mb-3">
-                <div class="col-4 text-muted">Date Processed</div>
-                <div class="col-8">@Model.DateProcessed?.ToString("MMMM dd,yyyy - h:mm tt")</div>
             </div>
-            <div class="row mb-3">
-                <div class="col-4 text-muted">Processed By</div>
-                <div class="clo-8>@Model.ProcessedBy"></div>
-            </div>
-        }
-   </div>
-   <div class="card-footer bg-white d-flex gap-2">
-        @if(Model.Status == "Pending")
-        {
-            <form asp-action="Approve" asp-route-id="@Model.RequestID" method="post">
-                <button class="btn btn-success btn-sm"><i class="bi bi-check-Ig"></i>
-                    Approve</button>
-            </form>
-            <form asp-action="Reject" asp-route-id="@Model.RequestID"method="post">
-                <button class="btn btn-danger btn-sm"><i class="bi bi-x-Ig"></i>Reject</button>"
-            </form>
+            <span class="badge @statusClass">@Model.Status</span>
+        </div>
 
-        }
-        else if(Model.Status == "Approved")
-        {
-            <a asp-action="Print"
-               asp-route-id="@Model.RequestID" class="btn btn-outline-primary btn-sm" target="coePrintWindow">
-                <i class="bi bi-printer"></i> View/Print Certificate
+        <div class="card-body p-4">
+            <dl class="row mb-0 gy-3">
+                <dt class="col-sm-4 text-muted fw-medium">Employee</dt>
+                <dd class="col-sm-8 fw-semibold mb-0">
+                    @Model.Employee?.FirstName @Model.Employee?.LastName
+                </dd>
+
+                <dt class="col-sm-4 text-muted fw-medium">Employee Number</dt>
+                <dd class="col-sm-8 mb-0">@Model.Employee?.EmployeeNumber</dd>
+
+                <dt class="col-sm-4 text-muted fw-medium">Department</dt>
+                <dd class="col-sm-8 mb-0">@Model.Employee?.Department</dd>
+
+                <dt class="col-sm-4 text-muted fw-medium">Position</dt>
+                <dd class="col-sm-8 mb-0">@Model.Employee?.Position</dd>
+
+                <dt class="col-sm-4 text-muted fw-medium">Purpose</dt>
+                <dd class="col-sm-8 mb-0">@Model.Purpose</dd>
+
+                <dt class="col-sm-4 text-muted fw-medium">Date Requested</dt>
+                <dd class="col-sm-8 mb-0">
+                    @Model.DateRequested.ToString("MMMM dd, yyyy - h:mm tt")
+                </dd>
+
+                @if (Model.Status != "Pending")
+                {
+                    <dt class="col-sm-4 text-muted fw-medium">Date Processed</dt>
+                    <dd class="col-sm-8 mb-0">
+                        @Model.DateProcessed?.ToString("MMMM dd, yyyy - h:mm tt")
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted fw-medium">Processed By</dt>
+                    <dd class="col-sm-8 mb-0">@Model.ProcessedBy</dd>
+                }
+            </dl>
+        </div>
+
+        <div class="card-footer bg-white d-flex flex-wrap gap-2 p-3">
+            @if (Model.Status == "Pending")
+            {
+                <form asp-action="Approve" asp-route-id="@Model.RequestID" method="post">
+                    <button type="submit" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                        Approve
+                    </button>
+                </form>
+
+                <form asp-action="Reject" asp-route-id="@Model.RequestID" method="post">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-lg me-1" aria-hidden="true"></i>
+                        Reject
+                    </button>
+                </form>
+            }
+            else if (Model.Status == "Approved")
+            {
+                <a asp-action="Print"
+                   asp-route-id="@Model.RequestID"
+                   class="btn btn-sm btn-outline-primary"
+                   target="coePrintWindow">
+                    <i class="bi bi-printer me-1" aria-hidden="true"></i>
+                    View / Print Certificate
+                </a>
+            }
+
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                Back to List
             </a>
-        }
-        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to List</a>
-    </div>
-
-
+        </div>
+    </section>
 </div>

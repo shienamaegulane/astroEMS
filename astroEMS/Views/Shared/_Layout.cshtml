@@ -28,8 +28,8 @@
                 pendingCOECount = DbContext.COERequests.Count(r => r.Status == "Pending");
 
                 int missingGovIds = DbContext.Employees.Count(e =>
-                    string.IsNullOrEmpty(e.SSSNumber) || string.IsNullOrEmpty(e.PhilHealthNumber) ||
-                    string.IsNullOrEmpty(e.PagIBIGNumber) || string.IsNullOrEmpty(e.TINNumber));
+                string.IsNullOrEmpty(e.SSSNumber) || string.IsNullOrEmpty(e.PhilHealthNumber) ||
+                string.IsNullOrEmpty(e.PagIBIGNumber) || string.IsNullOrEmpty(e.TINNumber));
                 if (missingGovIds > 0)
                     topbarAlerts.Add($"{missingGovIds} employee(s) have incomplete government ID information.");
 
@@ -73,7 +73,48 @@
         <div class="sidebar">
             <div class="sidebar-brand d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-compass icon"></i>
+                    <div class="sidebar-brand-logo">
+                        <svg viewBox="0 0 48 48"
+                             fill="none"
+                             xmlns="http://www.w3.org/2000/svg"
+                             aria-hidden="true"
+                             focusable="false">
+                            <defs>
+                                <linearGradient id="sidebarGoldGrad"
+                                                gradientUnits="userSpaceOnUse"
+                                                x1="15" y1="12"
+                                                x2="33" y2="32">
+                                    <stop stop-color="#FFF2BF" />
+                                    <stop offset="0.5" stop-color="#D4AF37" />
+                                    <stop offset="1" stop-color="#9A751E" />
+                                </linearGradient>
+                            </defs>
+
+                            <polygon points="24,4 42,16 42,32 24,44 6,32 6,16"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     opacity="0.6" />
+
+                            <path d="M24 12L33 32H15L24 12Z"
+                                  stroke="url(#sidebarGoldGrad)"
+                                  stroke-width="2.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+
+                            <line x1="18" y1="26"
+                                  x2="30" y2="26"
+                                  stroke="#E5C158"
+                                  stroke-width="2" />
+
+                            <circle cx="24" cy="24" r="17"
+                                    stroke="#D4AF37"
+                                    stroke-width="1.2"
+                                    stroke-dasharray="3 4"
+                                    stroke-opacity="0.8" />
+                        </svg>
+                    </div>
                     <span>Astro Shipmanagement</span>
                 </div>
                 <button class="btn-sidebar-close d-lg-none" id="sidebarCloseBtn">
@@ -83,7 +124,6 @@
 
             <ul class="sidebar-nav">
                 <li><a class="@(currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
-                <li><a class="@(currentController == "Profile" ? "active" : "")" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle"></i> My Profile</a></li>
                 <li><a class="@(currentController == "Employees" ? "active" : "")" asp-controller="Employees" asp-action="Index"><i class="bi bi-people"></i> Employees</a></li>
                 @if (User.IsInRole("Admin") || User.IsInRole("HR"))
                 {
@@ -103,7 +143,6 @@
                     <li><a class="@(currentController == "Departments" ? "active" : "")" asp-controller="Departments" asp-action="Index"><i class="bi bi-diagram-3"></i> Departments</a></li>
                     <li><a class="@(currentController == "Positions" ? "active" : "")" asp-controller="Positions" asp-action="Index"><i class="bi bi-briefcase"></i> Positions</a></li>
                 }
-              
 
                 <li><a class="@(currentController == "Attendance" ? "active" : "")" asp-controller="Attendance" asp-action="Index"><i class="bi bi-calendar-check"></i> Attendance</a></li>
                 @* @if (User.IsInRole("Admin") || User.IsInRole("HR"))
@@ -118,15 +157,17 @@
                 {
                     <li><a class="@(currentController == "Payroll" ? "active" : "")" asp-controller="Payroll" asp-action="MyPayslips"><i class="bi bi-cash-stack"></i> My Payslips</a></li>
                 }
-                @if (User.IsInRole("Admin"))
-                {
-                    <li><a class="@(currentController == "Users" ? "active" : "")" asp-controller="Users" asp-action="Index"><i class="bi bi-shield-lock"></i> User Accounts</a></li>
-                }
+
                 @if (User.IsInRole("Admin") || User.IsInRole("HR"))
                 {
                     <li><a class="@(currentController == "Reports" ? "active" : "")" asp-controller="Reports" asp-action="Index"><i class="bi bi-bar-chart"></i> Reports</a></li>
                 }
-         @*        <li><a href="#"><i class="bi bi-gear"></i> Settings</a></li> *@
+                @if (User.IsInRole("Admin"))
+                {
+                    <li><a class="@(currentController == "Users" ? "active" : "")" asp-controller="Users" asp-action="Index"><i class="bi bi-shield-lock"></i> User Accounts</a></li>
+                }
+                <li><a class="@(currentController == "Profile" ? "active" : "")" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-circle"></i> My Profile</a></li>
+                @*        <li><a href="#"><i class="bi bi-gear"></i> Settings</a></li> *@
             </ul>
 
             <div class="sidebar-footer">
@@ -176,7 +217,7 @@
                     <span class="role-badge">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</span>
                 </div>
             </div>
-        }   
+        }
 
         <div class="page-content">
             @RenderBody()
@@ -193,24 +234,24 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const toggleBtn = document.getElementById('sidebarToggleBtn');
-            const closeBtn = document.getElementById('sidebarCloseBtn');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggleBtn');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
 
-            function openSidebar() {
-                sidebar?.classList.add('show');
-                overlay?.classList.add('show');
-            }
+        function openSidebar() {
+            sidebar?.classList.add('show');
+            overlay?.classList.add('show');
+        }
 
-            function closeSidebar() {
-                sidebar?.classList.remove('show');
-                overlay?.classList.remove('show');
-            }
+        function closeSidebar() {
+            sidebar?.classList.remove('show');
+            overlay?.classList.remove('show');
+        }
 
-            toggleBtn?.addEventListener('click', openSidebar);
-            closeBtn?.addEventListener('click', closeSidebar);
-            overlay?.addEventListener('click', closeSidebar);
+        toggleBtn?.addEventListener('click', openSidebar);
+        closeBtn?.addEventListener('click', closeSidebar);
+        overlay?.addEventListener('click', closeSidebar);
     </script>
 </body>
 </html>

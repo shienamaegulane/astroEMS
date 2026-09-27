@@ -1,64 +1,120 @@
 ﻿@model IEnumerable<astroEMS.Models.AttendanceSummaryRow>
+
 @{
     ViewData["Title"] = "Attendance Summary";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Attendance Summary</h3>
-    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left"></i> Back to Today's Attendance
-    </a>
-</div>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Attendance</p>
+            <h1>Attendance Summary</h1>
+            <p class="dashboard-intro-description">
+                Review attendance totals for the selected period.
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Today's Attendance
+        </a>
+    </header>
 
-<div class="card mb-4">
-    <div class="card-body py-2">
-        <form asp-action="Summary" method="get" class="d-flex gap-2 align-items-center">
-            <label class="mb-0 small text-muted">From</label>
-            <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control form-control-sm" style="max-width:170px;" />
-            <label class="mb-0 small text-muted">To</label>
-            <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control form-control-sm" style="max-width:170px;" />
-            <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-        </form>
-    </div>
-</div>
+    <section class="card dashboard-panel" aria-labelledby="attendance-filter-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-calendar-range" aria-hidden="true"></i>
+                <div>
+                    <h2 id="attendance-filter-heading">Date range</h2>
+                    <p>Choose the period to include in the summary.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form asp-action="Summary" method="get" class="d-flex flex-wrap align-items-end gap-3">
+                <div>
+                    <label for="summaryStartDate" class="form-label fw-semibold">From</label>
+                    <input id="summaryStartDate"
+                           type="date"
+                           name="startDate"
+                           value="@ViewBag.StartDate"
+                           class="form-control" />
+                </div>
+                <div>
+                    <label for="summaryEndDate" class="form-label fw-semibold">To</label>
+                    <input id="summaryEndDate"
+                           type="date"
+                           name="endDate"
+                           value="@ViewBag.EndDate"
+                           class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1" aria-hidden="true"></i>
+                    Apply
+                </button>
+            </form>
+        </div>
+    </section>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Employee</th>
-                    <th>Department</th>
-                    <th class="text-center">Present</th>
-                    <th class="text-center">Late</th>
-                    <th class="text-center">Absent</th>
-                    <th class="text-center">OT Hours</th>
-                    <th class="text-end pe-4">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in Model)
-                {
+    <section class="card dashboard-panel" aria-labelledby="summary-table-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
+                <div>
+                    <h2 id="summary-table-heading">Employee summary</h2>
+                    <p>Attendance and overtime totals by employee.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td class="ps-4">
-                            <div class="fw-semibold">@row.EmployeeName</div>
-                            <div class="text-muted small">@row.EmployeeNumber</div>
-                        </td>
-                        <td>@row.Department</td>
-                        <td class="text-center"><span class="badge badge-active">@row.PresentCount</span></td>
-                        <td class="text-center"><span class="badge badge-late">@row.LateCount</span></td>
-                        <td class="text-center"><span class="badge badge-absent">@row.AbsentCount</span></td>
-                        <td class="text-center">@row.TotalOTHours.ToString("0.#") hrs</td>
-                        <td class="text-end pe-4">
-                            <a asp-action="Details" asp-route-employeeId="@row.EmployeeID"
-                               asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate"
-                               class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-eye"></i> View Details
-                            </a>
-                        </td>
+                        <th scope="col" class="ps-4">Employee</th>
+                        <th scope="col">Department</th>
+                        <th scope="col" class="text-center">Present</th>
+                        <th scope="col" class="text-center">Late</th>
+                        <th scope="col" class="text-center">Absent</th>
+                        <th scope="col" class="text-center">OT Hours</th>
+                        <th scope="col" class="text-end pe-4">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="dashboard-empty py-5">
+                                No attendance records found for this period.
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var row in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-semibold">@row.EmployeeName</div>
+                                <div class="text-muted small">@row.EmployeeNumber</div>
+                            </td>
+                            <td>@row.Department</td>
+                            <td class="text-center"><span class="badge badge-active">@row.PresentCount</span></td>
+                            <td class="text-center"><span class="badge badge-late">@row.LateCount</span></td>
+                            <td class="text-center"><span class="badge badge-absent">@row.AbsentCount</span></td>
+                            <td class="text-center">@row.TotalOTHours.ToString("0.#") hrs</td>
+                            <td class="text-end pe-4">
+                                <a asp-action="Details"
+                                   asp-route-employeeId="@row.EmployeeID"
+                                   asp-route-startDate="@ViewBag.StartDate"
+                                   asp-route-endDate="@ViewBag.EndDate"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye me-1" aria-hidden="true"></i>
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>

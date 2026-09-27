@@ -3,138 +3,281 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Payslip</title>
     <style>
-            body {
-                font-family: 'Segoe UI', sans-serif;
-                padding: 40px;
-                color: #1a1a1a;
-                max-width: 600px;
-                margin: auto;
+        :root {
+            --navy: #142143;
+            --gold: #C9A227;
+            --text: #1F2937;
+            --muted: #667085;
+            --border: #DDE3ED;
+            --background: #F5F7FA;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 16px;
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .print-btn {
+            max-width: 760px;
+            margin: 0 auto 16px;
+            text-align: right;
+        }
+
+            .print-btn button {
+                padding: 10px 18px;
+                border: 0;
+                border-radius: 7px;
+                background: var(--gold);
+                color: var(--navy);
+                font: inherit;
+                font-weight: 700;
+                cursor: pointer;
             }
 
-            .header {
-                text-align: center;
-                margin-bottom: 30px;
+                .print-btn button:hover {
+                    background: #B8931F;
+                }
+
+                .print-btn button:focus-visible {
+                    outline: 3px solid var(--navy);
+                    outline-offset: 3px;
+                }
+
+        .payslip {
+            max-width: 760px;
+            margin: auto;
+            padding: 36px 42px;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-top: 5px solid var(--gold);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(20, 33, 67, 0.08);
+        }
+
+        .header {
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+            .header h1 {
+                margin: 0;
+                color: var(--navy);
+                font-size: 21px;
+                letter-spacing: 0.025em;
             }
 
-                .header h2 {
-                    margin: 0;
-                    color: #0A2540;
-                }
+            .header p {
+                margin: 4px 0 0;
+                color: var(--muted);
+                font-size: 12px;
+            }
 
-                .header p {
-                    margin: 2px 0;
-                    color: #555;
-                    font-size: 0.85rem;
-                }
+            .header .document-title {
+                margin-top: 16px;
+                color: var(--navy);
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+            }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 8px 4px;
+            vertical-align: top;
+        }
+
+        .employee-details {
+            margin: 22px 0;
+        }
+
+            .employee-details td:first-child {
+                color: var(--muted);
+            }
+
+        .right {
+            text-align: right;
+        }
+
+        .section-title {
+            margin: 24px 0 4px;
+            padding: 8px 10px;
+            border-left: 3px solid var(--gold);
+            background: #F5F7FA;
+            color: var(--navy);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .section-table tr:not(:last-child) td {
+            border-bottom: 1px solid #EDF0F4;
+        }
+
+        .detail-note {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .total-row td {
+            padding-top: 11px;
+            border-top: 2px solid var(--navy);
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        .net-pay {
+            margin-top: 28px;
+            padding: 16px 20px;
+            border-radius: 7px;
+            background: var(--navy);
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        @@media (max-width: 600px) {
+            .payslip {
+                padding: 24px 18px;
+            }
+
+            .header h1 {
+                font-size: 17px;
             }
 
             td {
-                padding: 6px 4px;
-                font-size: 0.9rem;
-            }
-
-            .section-title {
-                font-weight: bold;
-                background: #F5F7FA;
-                padding: 6px 8px;
-                margin-top: 15px;
-            }
-
-            .right {
-                text-align: right;
-            }
-
-            .total-row td {
-                border-top: 2px solid #333;
-                font-weight: bold;
-                padding-top: 8px;
+                font-size: 12px;
             }
 
             .net-pay {
-                background: #0A2540;
-                color: white;
-                padding: 12px;
-                text-align: center;
-                font-size: 1.2rem;
-                font-weight: bold;
-                border-radius: 6px;
-                margin-top: 15px;
+                font-size: 16px;
+            }
+        }
+
+        @@media print {
+            @@page {
+                margin: 14mm;
+            }
+
+            body {
+                padding: 0;
+                background: #FFFFFF;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .print-btn {
-                margin-bottom: 20px;
-                text-align: center;
+                display: none;
             }
 
-            @@media print {
-                .print-btn {
-                    display: none;
-                }
+            .payslip {
+                max-width: none;
+                padding: 0;
+                border: 0;
+                border-top: 5px solid var(--gold);
+                border-radius: 0;
+                box-shadow: none;
             }
+
+            .section-title,
+            .net-pay {
+                break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="print-btn"><button onclick="window.print()">🖨️ Print Payslip</button></div>
-
-    <div class="header">
-        <h2>ASTRO SHIPMANAGEMENT, INC.</h2>
-        <p>6F Skyrise 1 Bldg., Cebu IT Park, Apas, Cebu City</p>
-        <p>PAYSLIP</p>
+    <div class="print-btn">
+        <button type="button" onclick="window.print()">Print Payslip</button>
     </div>
 
-    <table>
-        <tr><td><strong>Employee:</strong></td><td class="right">@Model.Employee?.FirstName @Model.Employee?.LastName</td></tr>
-        <tr><td><strong>Employee No.:</strong></td><td class="right">@Model.Employee?.EmployeeNumber</td></tr>
-        <tr><td><strong>Department:</strong></td><td class="right">@Model.Employee?.Department</td></tr>
-        <tr><td><strong>Pay Period:</strong></td><td class="right">@Model.Period?.PeriodStart.ToString("MMM dd") - @Model.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td></tr>
-        <tr><td><strong>Pay Date:</strong></td><td class="right">@Model.Period?.PayDate.ToString("MMM dd, yyyy")</td></tr>
-    </table>
+    <main class="payslip">
+        <header class="header">
+            <h1>ASTRO SHIPMANAGEMENT, INC.</h1>
+            <p>6F Skyrise 1 Bldg., Cebu IT Park, Apas, Cebu City</p>
+            <p class="document-title">PAYSLIP</p>
+        </header>
 
-    <div class="section-title">ATTENDANCE</div>
-    <table>
-        <tr><td>Present</td><td class="right">@Model.DaysPresent day(s)</td></tr>
-        <tr><td>Late</td><td class="right">@Model.DaysLate day(s) / @Model.TotalLateMinutes min</td></tr>
-        <tr><td>Absent</td><td class="right">@Model.DaysAbsent day(s)</td></tr>
-        <tr><td>Undertime</td><td class="right">@Model.TotalUndertimeMinutes min</td></tr>
-        <tr><td>Overtime</td><td class="right">@Model.TotalOvertimeHours.ToString("0.##") hrs</td></tr>
-    </table>
+        <table class="employee-details">
+            <tbody>
+                <tr><td><strong>Employee:</strong></td><td class="right">@Model.Employee?.FirstName @Model.Employee?.LastName</td></tr>
+                <tr><td><strong>Employee No.:</strong></td><td class="right">@Model.Employee?.EmployeeNumber</td></tr>
+                <tr><td><strong>Department:</strong></td><td class="right">@Model.Employee?.Department</td></tr>
+                <tr><td><strong>Pay Period:</strong></td><td class="right">@Model.Period?.PeriodStart.ToString("MMM dd") - @Model.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td></tr>
+                <tr><td><strong>Pay Date:</strong></td><td class="right">@Model.Period?.PayDate.ToString("MMM dd, yyyy")</td></tr>
+            </tbody>
+        </table>
 
-    <div class="section-title">EARNINGS</div>
-    <table>
-        <tr>
-            <td>
-                Basic Pay
-                @if (Model.Employee?.EmploymentType == "Contractual")
-                {
-                    <br /><span style="font-size:0.75rem; color:#666;">(Daily rate × @(Model.DaysPresent + Model.DaysLate) day(s) worked)</span>
-                }
-            </td>
-            <td class="right">₱@Model.BasicPay.ToString("N2")</td>
-        </tr>
-        <tr><td>Overtime Pay</td><td class="right">₱@Model.OvertimePay.ToString("N2")</td></tr>
-        <tr class="total-row"><td>GROSS PAY</td><td class="right">₱@Model.GrossPay.ToString("N2")</td></tr>
-    </table>
+        <section aria-labelledby="attendance-heading">
+            <h2 class="section-title" id="attendance-heading">ATTENDANCE</h2>
+            <table class="section-table">
+                <tbody>
+                    <tr><td>Present</td><td class="right">@Model.DaysPresent day(s)</td></tr>
+                    <tr><td>Late</td><td class="right">@Model.DaysLate day(s) / @Model.TotalLateMinutes min</td></tr>
+                    <tr><td>Absent</td><td class="right">@Model.DaysAbsent day(s)</td></tr>
+                    <tr><td>Undertime</td><td class="right">@Model.TotalUndertimeMinutes min</td></tr>
+                    <tr><td>Overtime</td><td class="right">@Model.TotalOvertimeHours.ToString("0.##") hrs</td></tr>
+                </tbody>
+            </table>
+        </section>
 
-    <div class="section-title">DEDUCTIONS</div>
-    <table>
-        <tr><td>Late Deduction</td><td class="right">₱@Model.LateDeduction.ToString("N2")</td></tr>
-        <tr><td>Undertime Deduction</td><td class="right">₱@Model.UndertimeDeduction.ToString("N2")</td></tr>
-        <tr><td>SSS</td><td class="right">₱@Model.SSSDeduction.ToString("N2")</td></tr>
-        <tr><td>PhilHealth</td><td class="right">₱@Model.PhilHealthDeduction.ToString("N2")</td></tr>
-        <tr><td>Pag-IBIG</td><td class="right">₱@Model.PagIBIGDeduction.ToString("N2")</td></tr>
-        <tr><td>Withholding Tax</td><td class="right">₱@Model.WithholdingTax.ToString("N2")</td></tr>
-        <tr class="total-row"><td>TOTAL DEDUCTIONS</td><td class="right">₱@Model.TotalDeductions.ToString("N2")</td></tr>
-    </table>
+        <section aria-labelledby="earnings-heading">
+            <h2 class="section-title" id="earnings-heading">EARNINGS</h2>
+            <table class="section-table">
+                <tbody>
+                    <tr>
+                        <td>
+                            Basic Pay
+                            @if (Model.Employee?.EmploymentType == "Contractual")
+                            {
+                                <br />
+                                <span class="detail-note">(Daily rate × @(Model.DaysPresent + Model.DaysLate) day(s) worked)</span>
+                            }
+                        </td>
+                        <td class="right">₱@Model.BasicPay.ToString("N2")</td>
+                    </tr>
+                    <tr><td>Overtime Pay</td><td class="right">₱@Model.OvertimePay.ToString("N2")</td></tr>
+                    <tr class="total-row"><td>GROSS PAY</td><td class="right">₱@Model.GrossPay.ToString("N2")</td></tr>
+                </tbody>
+            </table>
+        </section>
 
-    <div class="net-pay">NET PAY: ₱@Model.NetPay.ToString("N2")</div>
+        <section aria-labelledby="deductions-heading">
+            <h2 class="section-title" id="deductions-heading">DEDUCTIONS</h2>
+            <table class="section-table">
+                <tbody>
+                    <tr><td>Late Deduction</td><td class="right">₱@Model.LateDeduction.ToString("N2")</td></tr>
+                    <tr><td>Undertime Deduction</td><td class="right">₱@Model.UndertimeDeduction.ToString("N2")</td></tr>
+                    <tr><td>SSS</td><td class="right">₱@Model.SSSDeduction.ToString("N2")</td></tr>
+                    <tr><td>PhilHealth</td><td class="right">₱@Model.PhilHealthDeduction.ToString("N2")</td></tr>
+                    <tr><td>Pag-IBIG</td><td class="right">₱@Model.PagIBIGDeduction.ToString("N2")</td></tr>
+                    <tr><td>Withholding Tax</td><td class="right">₱@Model.WithholdingTax.ToString("N2")</td></tr>
+                    <tr class="total-row"><td>TOTAL DEDUCTIONS</td><td class="right">₱@Model.TotalDeductions.ToString("N2")</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="net-pay">NET PAY: ₱@Model.NetPay.ToString("N2")</div>
+    </main>
 </body>
 </html>

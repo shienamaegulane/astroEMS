@@ -1,44 +1,84 @@
 ﻿@model IEnumerable<astroEMS.Models.Payslip>
+
 @{
     ViewData["Title"] = "Payslips";
     var period = ViewBag.Period as astroEMS.Models.PayrollPeriod;
 }
 
-<h3 class="mb-1"><i class="bi bi-cash-stack me-2"></i>Payslips</h3>
-<p class="text-muted mb-4">@period?.PeriodStart.ToString("MMM dd") - @period?.PeriodEnd.ToString("MMM dd, yyyy")</p>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Compensation</p>
+            <h1>Payslips</h1>
+            <p class="dashboard-intro-description">
+                Review employee payslips for this payroll period.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-calendar-range" aria-hidden="true"></i>
+            @period?.PeriodStart.ToString("MMM dd") – @period?.PeriodEnd.ToString("MMM dd, yyyy")
+        </p>
+    </header>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Employee</th>
-                    <th>Gross Pay</th>
-                    <th>Deductions</th>
-                    <th>Net Pay</th>
-                    <th class="text-end pe-4">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in Model)
-                {
+    <section class="card dashboard-panel" aria-labelledby="payslips-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+                <div>
+                    <h2 id="payslips-heading">Employee payslips</h2>
+                    <p>Gross pay, deductions, and net pay for the selected period.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td class="ps-4">@p.Employee?.FirstName @p.Employee?.LastName</td>
-                        <td>₱@p.GrossPay.ToString("N2")</td>
-                        <td>₱@p.TotalDeductions.ToString("N2")</td>
-                        <td class="fw-semibold">₱@p.NetPay.ToString("N2")</td>
-                        <td class="text-end pe-4">
-                            <a asp-action="View" asp-route-id="@p.PayslipID" class="btn btn-sm btn-outline-primary" target="payslipWindow">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        </td>
+                        <th scope="col" class="ps-4">Employee</th>
+                        <th scope="col">Gross Pay</th>
+                        <th scope="col">Deductions</th>
+                        <th scope="col">Net Pay</th>
+                        <th scope="col" class="text-end pe-4">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="dashboard-empty py-5">
+                                No payslips found for this period.
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-semibold">@p.Employee?.FirstName @p.Employee?.LastName</td>
+                            <td>₱@p.GrossPay.ToString("N2")</td>
+                            <td>₱@p.TotalDeductions.ToString("N2")</td>
+                            <td class="fw-semibold">₱@p.NetPay.ToString("N2")</td>
+                            <td class="text-end pe-4">
+                                <a asp-action="View"
+                                   asp-route-id="@p.PayslipID"
+                                   class="btn btn-sm btn-outline-primary"
+                                   target="payslipWindow">
+                                    <i class="bi bi-eye me-1" aria-hidden="true"></i>
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Back to Payroll Periods
+        </a>
     </div>
 </div>
-
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">
-    <i class="bi bi-arrow-left"></i> Back to Payroll Periods
-</a>

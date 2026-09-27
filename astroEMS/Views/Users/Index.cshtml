@@ -1,59 +1,109 @@
 ﻿@model IEnumerable<astroEMS.Models.User>
 @{
     ViewData["Title"] = "User Accounts";
+    var accountCount = Model.Count();
 }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Administration</p>
+            <h1>User Accounts</h1>
+            <p class="dashboard-intro-description">
+                Manage account roles and access for employees.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+            @accountCount account@(accountCount == 1 ? "" : "s")
+        </p>
+    </header>
 
-<h3 class="mb-4"><i class="bi bi-shield-lock me-2"></i>User Accounts</h3>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="status">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
+        </div>
+    }
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Employee</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th class="text-end pe-4">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var u in Model)
-                {
-                    <tr>
-                        <td class="ps-4">@u.Employee?.FirstName @u.Employee?.LastName</td>
-                        <td>@u.Username</td>
-                        <td>
-                            <form asp-action="ChangeRole" method="post" class="d-inline-flex gap-1">
-                                <input type="hidden" name="userId" value="@u.UserID" />
-                                <select name="newRole" class="form-select form-select-sm" style="width:auto;">
-                                    <option value="Employee" selected="@(u.Role == "Employee")">Employee</option>
-                                    <option value="HR" selected="@(u.Role == "HR")">HR</option>
-                                    <option value="Admin" selected="@(u.Role == "Admin")">Admin</option>
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
-                            </form>
-                        </td>
-                        <td>
-                            <span class="badge @(u.IsActive ? "badge-active" : "badge-absent")">
-                                @(u.IsActive ? "Active" : "Disabled")
-                            </span>
-                        </td>
-                        <td class="text-end pe-4">
-                            <form asp-action="ToggleActive" asp-route-id="@u.UserID" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-secondary">
-                                    @(u.IsActive ? "Disable" : "Enable")
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <section class="card dashboard-panel" aria-labelledby="accounts-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-people" aria-hidden="true"></i>
+                <div>
+                    <h2 id="accounts-heading">Account directory</h2>
+                    <p>Review account status and update access roles.</p>
+                </div>
+            </div>
+        </div>
+
+        @if (accountCount == 0)
+        {
+            <div class="dashboard-empty py-5">
+                <i class="bi bi-person-x fs-2 d-block mb-2" aria-hidden="true"></i>
+                No user accounts found.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="ps-4">Employee</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-semibold">
+                                    @u.Employee?.FirstName @u.Employee?.LastName
+                                </td>
+                                <td>@u.Username</td>
+                                <td>
+                                    <form asp-action="ChangeRole"
+                                          method="post"
+                                          class="d-inline-flex flex-wrap align-items-center gap-2">
+                                        <input type="hidden" name="userId" value="@u.UserID" />
+                                        <select name="newRole"
+                                                class="form-select form-select-sm w-auto"
+                                                aria-label="Role for @u.Username">
+                                            <option value="Employee" selected="@(u.Role == "Employee")">Employee</option>
+                                            <option value="HR" selected="@(u.Role == "HR")">HR</option>
+                                            <option value="Admin" selected="@(u.Role == "Admin")">Admin</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            Update
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <span class="badge @(u.IsActive ? "badge-active" : "badge-absent")">
+                                        @(u.IsActive ? "Active" : "Disabled")
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <form asp-action="ToggleActive"
+                                          asp-route-id="@u.UserID"
+                                          method="post"
+                                          class="d-inline">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                aria-label="@(u.IsActive ? "Disable" : "Enable") account for @u.Username">
+                                            @(u.IsActive ? "Disable" : "Enable")
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
 </div>

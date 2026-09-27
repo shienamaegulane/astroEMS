@@ -1,94 +1,172 @@
 ﻿@model IEnumerable<astroEMS.Models.Payslip>
+
 @{
     ViewData["Title"] = "Payroll";
 }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Payroll</h3>
-    <a asp-action="GeneratePayroll" class="btn btn-gold">
-        <i class="bi bi-plus-lg"></i> Generate Payroll
-    </a>
-</div>
-
-<div class="card mb-4">
-    <div class="card-body py-2">
-        <form asp-action="Index" method="get" class="d-flex gap-2 align-items-center flex-wrap">
-            <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-sm" placeholder="Search employee..." style="max-width:220px;" />
-            <label class="mb-0 small text-muted">From</label>
-            <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control form-control-sm" style="max-width:160px;" />
-            <label class="mb-0 small text-muted">To</label>
-            <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control form-control-sm" style="max-width:160px;" />
-            <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Clear</a>
-        </form>
-    </div>
-</div>
-
-<form id="bulkPrintForm" asp-action="BulkPrint" method="get" target="_blank">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="selectAll" />
-            <label class="form-check-label small" for="selectAll">Select All</label>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Compensation</p>
+            <h1>Payroll</h1>
+            <p class="dashboard-intro-description">
+                Review payslips, filter payroll records, and prepare selected payslips for printing.
+            </p>
         </div>
-        <button type="submit" class="btn btn-sm btn-outline-primary" id="bulkPrintBtn" disabled>
-            <i class="bi bi-printer"></i> Print Selected
-        </button>
-    </div>
+        <a asp-action="GeneratePayroll" class="btn btn-gold">
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+            Generate Payroll
+        </a>
+    </header>
 
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead style="background-color:#F5F7FA;">
-                    <tr>
-                        <th class="ps-4"><input type="checkbox" disabled /></th>
-                        <th>Employee</th>
-                        <th>Period</th>
-                        <th>Gross Pay</th>
-                        <th>Deductions</th>
-                        <th>Net Pay</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr><td colspan="8" class="text-center text-muted py-4">No payslips found.</td></tr>
-                    }
-                    @foreach (var p in Model)
-                    {
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="status">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
+        </div>
+    }
+
+    <section class="card dashboard-panel" aria-labelledby="payroll-filter-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-funnel" aria-hidden="true"></i>
+                <div>
+                    <h2 id="payroll-filter-heading">Find payslips</h2>
+                    <p>Search by employee or narrow the payroll period.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-end gap-3">
+                <div>
+                    <label for="payrollSearch" class="form-label fw-semibold">Employee</label>
+                    <input id="payrollSearch"
+                           type="text"
+                           name="search"
+                           value="@ViewBag.Search"
+                           class="form-control"
+                           placeholder="Search employee..." />
+                </div>
+                <div>
+                    <label for="payrollStartDate" class="form-label fw-semibold">From</label>
+                    <input id="payrollStartDate"
+                           type="date"
+                           name="startDate"
+                           value="@ViewBag.StartDate"
+                           class="form-control" />
+                </div>
+                <div>
+                    <label for="payrollEndDate" class="form-label fw-semibold">To</label>
+                    <input id="payrollEndDate"
+                           type="date"
+                           name="endDate"
+                           value="@ViewBag.EndDate"
+                           class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search me-1" aria-hidden="true"></i>
+                    Filter
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+            </form>
+        </div>
+    </section>
+
+    <form id="bulkPrintForm" asp-action="BulkPrint" method="get" target="_blank">
+        <section class="card dashboard-panel" aria-labelledby="payslip-list-heading">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="dashboard-panel-header">
+                    <i class="bi bi-receipt" aria-hidden="true"></i>
+                    <div>
+                        <h2 id="payslip-list-heading">Payslips</h2>
+                        <p>View individual records or print selected payslips.</p>
+                    </div>
+                </div>
+                <button type="submit"
+                        class="btn btn-outline-primary"
+                        id="bulkPrintBtn"
+                        disabled>
+                    <i class="bi bi-printer me-1" aria-hidden="true"></i>
+                    Print Selected
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <td class="ps-4">
-                                <input type="checkbox" name="ids" value="@p.PayslipID" class="payslip-checkbox" />
-                            </td>
-                            <td>@p.Employee?.FirstName @p.Employee?.LastName</td>
-                            <td>@p.Period?.PeriodStart.ToString("MMM dd") - @p.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td>
-                            <td>₱@p.GrossPay.ToString("N2")</td>
-                            <td>₱@p.TotalDeductions.ToString("N2")</td>
-                            <td class="fw-semibold">₱@p.NetPay.ToString("N2")</td>
-                            <td>
-                                <span class="badge @(p.Period?.Status == "Approved" ? "badge-active" : "badge-late")">@p.Period?.Status</span>
-                            </td>
-                            <td class="text-end pe-4">
-                                <a asp-action="Breakdown" asp-route-periodId="@p.PeriodID" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-table"></i>
-                                </a>
-                                <a asp-action="View" asp-route-id="@p.PayslipID" class="btn btn-sm btn-outline-primary" target="payslipWindow">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
+                            <th scope="col" class="ps-4">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="selectAll"
+                                       aria-label="Select all payslips" />
+                            </th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Period</th>
+                            <th scope="col">Gross Pay</th>
+                            <th scope="col">Deductions</th>
+                            <th scope="col">Net Pay</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-4">Action</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</form>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="dashboard-empty py-5">
+                                    No payslips found.
+                                </td>
+                            </tr>
+                        }
+
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <input type="checkbox"
+                                           name="ids"
+                                           value="@p.PayslipID"
+                                           class="form-check-input payslip-checkbox"
+                                           aria-label="Select payslip for @p.Employee?.FirstName @p.Employee?.LastName" />
+                                </td>
+                                <td class="fw-semibold">@p.Employee?.FirstName @p.Employee?.LastName</td>
+                                <td>@p.Period?.PeriodStart.ToString("MMM dd") - @p.Period?.PeriodEnd.ToString("MMM dd, yyyy")</td>
+                                <td>₱@p.GrossPay.ToString("N2")</td>
+                                <td>₱@p.TotalDeductions.ToString("N2")</td>
+                                <td class="fw-semibold">₱@p.NetPay.ToString("N2")</td>
+                                <td>
+                                    <span class="badge @(p.Period?.Status == "Approved" ? "badge-active" : "badge-late")">
+                                        @p.Period?.Status
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-action="Breakdown"
+                                           asp-route-periodId="@p.PeriodID"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           aria-label="View payroll breakdown"
+                                           title="Breakdown">
+                                            <i class="bi bi-table" aria-hidden="true"></i>
+                                        </a>
+                                        <a asp-action="View"
+                                           asp-route-id="@p.PayslipID"
+                                           class="btn btn-sm btn-outline-primary"
+                                           target="payslipWindow"
+                                           aria-label="View payslip for @p.Employee?.FirstName @p.Employee?.LastName"
+                                           title="View payslip">
+                                            <i class="bi bi-eye" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </form>
+</div>
 
 @section Scripts {
     <script>

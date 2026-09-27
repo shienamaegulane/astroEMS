@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Astro EMS @ViewData["Title"] - Attendance &amp; Payroll Management System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="~/css/astro-login.css"
+          asp-append-version="true" />
+</head>
+<body class="astro-login-page">
+
+    <main id="main-content" class="astro-login-main">
+        @RenderBody()
+    </main>
+
+    <footer class="astro-login-footer">
+        <div class="astro-login-footer-inner">
+            <p>
+                &copy; 2026 - Astro EMS -
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </p>
+
+            <p>Payroll &amp; Time Tracking System</p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
