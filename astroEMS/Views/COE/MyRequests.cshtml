@@ -1,63 +1,124 @@
 ﻿@model IEnumerable<astroEMS.Models.COERequest>
+
 @{
     ViewData["Title"] = "Certificate of Employment";
 }
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Employee documents</p>
+            <h1>Certificate of Employment</h1>
+            <p class="dashboard-intro-description">
+                Request a certificate and track your previous requests.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+            COE Requests
+        </p>
+    </header>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success mb-0" role="status">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+            @TempData["Success"]
+        </div>
+    }
 
-<h3 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>Certificate of Employment (COE)</h3>
-
-<div class="card mb-4" style="max-width:500px;">
-    <div class="card-header">Request a New COE</div>
-    <div class="card-body">
-        <form asp-action="Request" method="post">
-            <div class="mb-3">
-                <label class="form-label">Purpose</label>
-                <input type="text" name="purpose" class="form-control" placeholder="e.g. Visa application, loan requirement" required />
+    <section class="card dashboard-panel" style="max-width: 760px;" aria-labelledby="new-coe-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-file-earmark-plus" aria-hidden="true"></i>
+                <div>
+                    <h2 id="new-coe-heading">Request a New COE</h2>
+                    <p>Enter the purpose for your certificate.</p>
+                </div>
             </div>
-            <button type="submit" class="btn btn-gold">Submit Request</button>
-        </form>
-    </div>
-</div>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Request" method="post">
+                <div class="mb-3">
+                    <label for="coe-purpose" class="form-label fw-semibold">Purpose</label>
+                    <input id="coe-purpose"
+                           type="text"
+                           name="purpose"
+                           class="form-control"
+                           placeholder="e.g. Visa application, loan requirement"
+                           required />
+                </div>
+                <button type="submit" class="btn btn-gold">
+                    <i class="bi bi-send me-1" aria-hidden="true"></i>
+                    Submit Request
+                </button>
+            </form>
+        </div>
+    </section>
 
-<div class="card">
-    <div class="card-header">My Request History</div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Date Requested</th>
-                    <th>Purpose</th>
-                    <th>Status</th>
-                    <th class="text-end pe-4">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var r in Model)
-                {
-                    <tr>
-                        <td class="ps-4">@r.DateRequested.ToString("MMM dd, yyyy")</td>
-                        <td>@r.Purpose</td>
-                        <td>
-                            @{
-                                string cls = r.Status switch { "Approved" => "badge-active", "Rejected" => "badge-absent", _ => "badge-late" };
-                            }
-                            <span class="badge @cls">@r.Status</span>
-                        </td>
-                        <td class="text-end pe-4">
-                            @if (r.Status == "Approved")
-                            {
-                                <a asp-action="Print" asp-route-id="@r.RequestID" class="btn btn-sm btn-outline-primary" target="coePrintWindow">
-                                    <i class="bi bi-printer"></i> View / Print
-                                </a>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <section class="card dashboard-panel" aria-labelledby="coe-history-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-clock-history" aria-hidden="true"></i>
+                <div>
+                    <h2 id="coe-history-heading">My Request History</h2>
+                    <p>View the status of your submitted requests.</p>
+                </div>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="dashboard-empty py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2" aria-hidden="true"></i>
+                You have no COE requests yet.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="ps-4">Date Requested</th>
+                            <th scope="col">Purpose</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">@r.DateRequested.ToString("MMM dd, yyyy")</td>
+                                <td>@r.Purpose</td>
+                                <td>
+                                    @{
+                                        string cls = r.Status switch
+                                        {
+                                            "Approved" => "badge-active",
+                                            "Rejected" => "badge-absent",
+                                            _ => "badge-late"
+                                        };
+                                    }
+                                    <span class="badge @cls">@r.Status</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (r.Status == "Approved")
+                                    {
+                                        <a asp-action="Print"
+                                           asp-route-id="@r.RequestID"
+                                           class="btn btn-sm btn-outline-primary"
+                                           target="coePrintWindow">
+                                            <i class="bi bi-printer me-1" aria-hidden="true"></i>
+                                            View / Print
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
 </div>

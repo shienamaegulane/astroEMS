@@ -1,104 +1,219 @@
 ﻿@model astroEMS.Models.COERequest
+
 @{
-    Layout = null; // no sidebar/layout - clean printable page
+    Layout = null;
 }
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Certificate of Employment</title>
     <style>
-            body {
-                font-family: 'Times New Roman', serif;
-                padding: 60px;
-                color: #1a1a1a;
-                line-height: 1.8;
+        :root {
+            --navy: #142143;
+            --gold: #C9A227;
+            --text: #1F2937;
+            --muted: #667085;
+            --border: #DDE3ED;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 16px;
+            background: #F5F7FA;
+            color: var(--text);
+            font-family: 'Times New Roman', Georgia, serif;
+            line-height: 1.8;
+        }
+
+        .print-actions {
+            max-width: 850px;
+            margin: 0 auto 16px;
+            text-align: right;
+        }
+
+            .print-actions button {
+                padding: 10px 18px;
+                border: 0;
+                border-radius: 7px;
+                background: var(--gold);
+                color: var(--navy);
+                font: 700 14px Arial, sans-serif;
+                cursor: pointer;
             }
 
-            .header {
-                text-align: center;
-                margin-bottom: 50px;
+                .print-actions button:hover {
+                    background: #B8931F;
+                }
+
+                .print-actions button:focus-visible {
+                    outline: 3px solid var(--navy);
+                    outline-offset: 3px;
+                }
+
+        .certificate {
+            width: 100%;
+            max-width: 850px;
+            min-height: 950px;
+            margin: 0 auto;
+            padding: 70px 75px;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-top: 5px solid var(--gold);
+            box-shadow: 0 8px 24px rgba(20, 33, 67, 0.08);
+        }
+
+        .header {
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+            .header h1 {
+                margin: 0;
+                color: var(--navy);
+                font-size: 24px;
+                letter-spacing: 0.04em;
             }
 
-                .header h1 {
-                    margin: 0;
-                    color: #0A2540;
-                    letter-spacing: 1px;
-                }
+            .header p {
+                margin: 2px 0;
+                color: var(--muted);
+                font-size: 13px;
+                line-height: 1.5;
+            }
 
-                .header p {
-                    margin: 2px 0;
-                    color: #555;
-                    font-size: 0.9rem;
-                }
+        .title {
+            margin: 54px 0 42px;
+            color: var(--navy);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-align: center;
+            text-decoration: underline;
+            text-decoration-color: var(--gold);
+            text-underline-offset: 8px;
+        }
+
+        .body-text {
+            font-size: 16px;
+            text-align: justify;
+        }
+
+            .body-text p {
+                margin: 0 0 24px;
+            }
+
+        .signature {
+            margin-top: 96px;
+            font-size: 15px;
+        }
+
+            .signature p {
+                margin: 0;
+            }
+
+            .signature .line {
+                width: 250px;
+                height: 1px;
+                margin: 48px 0 10px;
+                background: var(--navy);
+            }
+
+        @@media (max-width: 600px) {
+            .certificate {
+                min-height: auto;
+                padding: 38px 24px;
+            }
+
+            .header h1 {
+                font-size: 19px;
+            }
 
             .title {
-                text-align: center;
-                font-size: 1.4rem;
-                font-weight: bold;
-                text-decoration: underline;
-                margin: 40px 0;
+                margin: 36px 0;
+                font-size: 17px;
             }
 
             .body-text {
-                font-size: 1.05rem;
-                text-align: justify;
-                margin-bottom: 60px;
+                font-size: 15px;
             }
 
             .signature {
-                margin-top: 80px;
+                margin-top: 64px;
+            }
+        }
+
+        @@media print {
+            @@page {
+                margin: 14mm;
             }
 
-                .signature .line {
-                    border-top: 1px solid #000;
-                    width: 250px;
-                    margin-top: 60px;
-                }
-
-            .print-btn {
-                margin-bottom: 30px;
+            body {
+                padding: 0;
+                background: #FFFFFF;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
-            @@media print {
-                .print-btn {
-                    display: none;
-                }
+            .print-actions {
+                display: none;
             }
+
+            .certificate {
+                max-width: none;
+                min-height: 0;
+                padding: 0;
+                border: 0;
+                border-top: 5px solid var(--gold);
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="print-btn">
-        <button onclick="window.print()">🖨️ Print this Certificate</button>
+    <div class="print-actions">
+        <button type="button" onclick="window.print()">Print this Certificate</button>
     </div>
 
-    <div class="header">
-        <h1>ASTRO SHIPMANAGEMENT, INC.</h1>
-        <p>6F Skyrise 1 Bldg., Cebu IT Park, Apas, Cebu City</p>
-        <p>Tel: (032) XXX-XXXX | www.e-astroships.com</p>
-    </div>
+    <main class="certificate">
+        <header class="header">
+            <h1>ASTRO SHIPMANAGEMENT, INC.</h1>
+            <p>6F Skyrise 1 Bldg., Cebu IT Park, Apas, Cebu City</p>
+            <p>Tel: (032) XXX-XXXX | www.e-astroships.com</p>
+        </header>
 
-    <div class="title">CERTIFICATE OF EMPLOYMENT</div>
+        <h2 class="title">CERTIFICATE OF EMPLOYMENT</h2>
 
-    <div class="body-text">
-        <p>TO WHOM IT MAY CONCERN:</p>
-        <p>
-            This is to certify that <strong>@Model.Employee?.FirstName @Model.Employee?.MiddleName @Model.Employee?.LastName</strong>,
-            with Employee Number <strong>@Model.Employee?.EmployeeNumber</strong>, is/was a
-            <strong>@Model.Employee?.EmploymentType</strong> employee of Astro Shipmanagement, Inc., holding the position of
-            <strong>@Model.Employee?.Position</strong> under the <strong>@Model.Employee?.Department</strong> Department,
-            from <strong>@Model.Employee?.DateHired.ToString("MMMM dd, yyyy")</strong> up to present.
-        </p>
-        <p>
-            This certification is issued upon the request of the above-named employee for
-            <strong>@Model.Purpose</strong> purposes.
-        </p>
-        <p>Issued this @Model.DateProcessed?.ToString("dd") day of @Model.DateProcessed?.ToString("MMMM, yyyy") at Cebu City, Philippines.</p>
-    </div>
+        <div class="body-text">
+            <p>TO WHOM IT MAY CONCERN:</p>
+            <p>
+                This is to certify that <strong>@Model.Employee?.FirstName @Model.Employee?.MiddleName @Model.Employee?.LastName</strong>,
+                with Employee Number <strong>@Model.Employee?.EmployeeNumber</strong>, is/was a
+                <strong>@Model.Employee?.EmploymentType</strong> employee of Astro Shipmanagement, Inc., holding the position of
+                <strong>@Model.Employee?.Position</strong> under the <strong>@Model.Employee?.Department</strong> Department,
+                from <strong>@Model.Employee?.DateHired.ToString("MMMM dd, yyyy")</strong> up to present.
+            </p>
+            <p>
+                This certification is issued upon the request of the above-named employee for
+                <strong>@Model.Purpose</strong> purposes.
+            </p>
+            <p>
+                Issued this @Model.DateProcessed?.ToString("dd") day of
+                @Model.DateProcessed?.ToString("MMMM, yyyy") at Cebu City, Philippines.
+            </p>
+        </div>
 
-    <div class="signature">
-        <p>_______________________________</p>
-        <div class="line"></div>
-        <p><strong>HR Department</strong><br />Astro Shipmanagement, Inc.</p>
-    </div>
+        <div class="signature">
+            <p>_______________________________</p>
+            <div class="line"></div>
+            <p><strong>HR Department</strong><br />Astro Shipmanagement, Inc.</p>
+        </div>
+    </main>
 </body>
 </html>

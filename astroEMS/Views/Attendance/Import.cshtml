@@ -2,23 +2,65 @@
     ViewData["Title"] = "Import Attendance";
 }
 
-<h3 class="mb-4"><i class="bi bi-upload me-2"></i>Import Attendance</h3>
-
-<div class="card mb-4" style="max-width:500px;">
-    <div class="card-body">
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert alert-danger">@ViewBag.Error</div>
-        }
-        <p class="text-muted small">
-            Upload a CSV or Excel (.xlsx) file exported from your time-tracking device — one row per scan.
-            Columns, in order: <strong>EmployeeNumber, Date, Time</strong>.
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Attendance</p>
+            <h1>Import Attendance</h1>
+            <p class="dashboard-intro-description">
+                Upload time records from your time-tracking device.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-upload" aria-hidden="true"></i>
+            CSV or Excel
         </p>
-        <form method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required />
+    </header>
+
+    <section class="card dashboard-panel" style="max-width: 720px;" aria-labelledby="import-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>
+                <div>
+                    <h2 id="import-heading">Upload attendance file</h2>
+                    <p>Select a CSV or Excel (.xlsx) file to import.</p>
+                </div>
             </div>
-            <button type="submit" class="btn btn-gold"><i class="bi bi-upload"></i> Import File</button>
-        </form>
-    </div>
+        </div>
+
+        <div class="card-body p-4">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+            }
+
+            <p class="text-muted small mb-4">
+                Export one row per scan from your time-tracking device. The columns must be in this order:
+                <strong>EmployeeNumber, Date, Time</strong>.
+            </p>
+
+            <form method="post" enctype="multipart/form-data" asp-antiforgery="true">
+                <div class="mb-4">
+                    <label for="attendanceFile" class="form-label fw-semibold">
+                        Attendance file
+                    </label>
+                    <input id="attendanceFile"
+                           type="file"
+                           name="file"
+                           class="form-control"
+                           accept=".csv,.xlsx"
+                           aria-describedby="attendanceFileHelp"
+                           required />
+                    <div id="attendanceFileHelp" class="form-text">
+                        Accepted formats: .csv and .xlsx
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gold">
+                    <i class="bi bi-upload me-1" aria-hidden="true"></i>
+                    Import File
+                </button>
+            </form>
+        </div>
+    </section>
 </div>

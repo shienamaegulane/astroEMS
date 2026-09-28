@@ -1,110 +1,147 @@
 ﻿@model IEnumerable<astroEMS.Models.Attendance>
+
 @{
     ViewData["Title"] = "Today's Attendance";
+    bool canManageAttendance = User.IsInRole("Admin") || User.IsInRole("HR");
+    int columnCount = canManageAttendance ? 6 : 5;
 }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Attendance</p>
+            <h1>Today's Attendance</h1>
+            <p class="dashboard-intro-description">
+                Review today's employee attendance and recorded times.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+            @(((DateTime)ViewBag.Today).ToString("dddd, MMMM dd, yyyy"))
+        </p>
+    </header>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Today's Attendance</h3>
-        <p class="text-muted mb-0">@(((DateTime)ViewBag.Today).ToString("dddd, MMMM dd, yyyy"))</p>
-    </div>
-    @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+    @if (TempData["Success"] != null)
     {
-        <div class="d-flex gap-2">
-            <a asp-action="Summary" class="btn btn-outline-secondary">
-                <i class="bi bi-bar-chart-line"></i> View History / Summary
-            </a>
-            <a asp-action="Import" class="btn btn-gold">
-                <i class="bi bi-upload"></i> Import Attendance
-            </a>
+        <div class="alert alert-success" role="status">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
         </div>
     }
-</div>
 
-@if (User.IsInRole("Admin") || User.IsInRole("HR"))
-{
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="text-muted small text-uppercase">Present Today</div>
-                    <div class="fs-3 fw-bold text-success">@ViewBag.PresentCount</div>
-                </div>
-            </div>
+    @if (canManageAttendance)
+    {
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Summary" class="btn btn-outline-secondary">
+                <i class="bi bi-bar-chart-line me-1" aria-hidden="true"></i>
+                View History / Summary
+            </a>
+            <a asp-action="Import" class="btn btn-gold">
+                <i class="bi bi-upload me-1" aria-hidden="true"></i>
+                Import Attendance
+            </a>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="text-muted small text-uppercase">Late Today</div>
-                    <div class="fs-3 fw-bold" style="color:#F9A825;">@ViewBag.LateCount</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="text-muted small text-uppercase">Absent Today</div>
-                    <div class="fs-3 fw-bold text-danger">@ViewBag.AbsentCount</div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    @if (User.IsInRole("Admin") || User.IsInRole("HR"))
-                    {
-                        <th class="ps-4">Employee</th>
-                    }
-                    <th>Time In</th>
-                    <th>Lunch Out</th>
-                    <th>Lunch In</th>
-                    <th>Time Out</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
+        <section class="row g-3" aria-label="Today's attendance totals">
+            <div class="col-12 col-sm-4">
+                <div class="dashboard-stat h-100">
+                    <div class="dashboard-stat-top">
+                        <p class="dashboard-stat-label">Present Today</p>
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-person-check" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <strong class="dashboard-stat-value text-success">@ViewBag.PresentCount</strong>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div class="dashboard-stat h-100">
+                    <div class="dashboard-stat-top">
+                        <p class="dashboard-stat-label">Late Today</p>
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-clock-history" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <strong class="dashboard-stat-value" style="color: var(--warning);">@ViewBag.LateCount</strong>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div class="dashboard-stat h-100">
+                    <div class="dashboard-stat-top">
+                        <p class="dashboard-stat-label">Absent Today</p>
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-person-x" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <strong class="dashboard-stat-value text-danger">@ViewBag.AbsentCount</strong>
+                </div>
+            </div>
+        </section>
+    }
+
+    <section class="card dashboard-panel" aria-labelledby="attendance-list-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-list-check" aria-hidden="true"></i>
+                <div>
+                    <h2 id="attendance-list-heading">Attendance records</h2>
+                    <p>Time entries and attendance status for today.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-4">No attendance record for today yet.</td>
-                    </tr>
-                }
-                @foreach (var a in Model)
-                {
-                    <tr>
-                        @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+                        @if (canManageAttendance)
                         {
-                            <td class="ps-4">@a.Employee?.FirstName @a.Employee?.LastName</td>
+                            <th scope="col" class="ps-4">Employee</th>
                         }
-                        <td>@(a.TimeIn.HasValue ? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.LunchOut.HasValue ? DateTime.Today.Add(a.LunchOut.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.LunchIn.HasValue ? DateTime.Today.Add(a.LunchIn.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
-                        <td>
-                            @{
-                                string cls = a.Status switch
-                                {
-                                    "Present" => "badge-active",
-                                    "Late" => "badge-late",
-                                    "Half Day" => "badge-halfday",
-                                    _ => "badge-absent"
-                                };
-                            }
-                            <span class="badge @cls">@a.Status</span>
-                        </td>
+                        <th scope="col">Time In</th>
+                        <th scope="col">Lunch Out</th>
+                        <th scope="col">Lunch In</th>
+                        <th scope="col">Time Out</th>
+                        <th scope="col" class="pe-4">Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="@columnCount" class="dashboard-empty py-5">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-2" aria-hidden="true"></i>
+                                No attendance record for today yet.
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            @if (canManageAttendance)
+                            {
+                                <td class="ps-4 fw-semibold">@a.Employee?.FirstName @a.Employee?.LastName</td>
+                            }
+                            <td>@(a.TimeIn.HasValue? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.LunchOut.HasValue? DateTime.Today.Add(a.LunchOut.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.LunchIn.HasValue? DateTime.Today.Add(a.LunchIn.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.TimeOut.HasValue? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
+                            <td class="pe-4">
+                                @{
+                                    string cls = a.Status switch
+                                    {
+                                        "Present" => "badge-active",
+                                        "Late" => "badge-late",
+                                        "Half Day" => "badge-halfday",
+                                        _ => "badge-absent"
+                                    };
+                                }
+                                <span class="badge @cls">@a.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>

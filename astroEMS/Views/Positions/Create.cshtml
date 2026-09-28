@@ -1,27 +1,71 @@
 ﻿@model astroEMS.Models.Position
+
 @{
     ViewData["Title"] = "Add Position";
 }
 
-<h3 class="mb-4"><i class="bi bi-briefcase me-2"></i>Add Position</h3>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Organization</p>
+            <h1>Add Position</h1>
+            <p class="dashboard-intro-description">
+                Add a job position to an existing department.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-briefcase" aria-hidden="true"></i>
+            Positions
+        </p>
+    </header>
 
-<div class="card" style="max-width:450px;">
-    <div class="card-body">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label class="form-label">Department</label>
-                <select asp-for="DepartmentID" class="form-select" asp-items="ViewBag.Departments">
-                    <option value="">-- Select Department --</option>
-                </select>
+    <section class="card dashboard-panel" style="max-width: 640px;" aria-labelledby="position-form-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                <div>
+                    <h2 id="position-form-heading">Position details</h2>
+                    <p>Choose a department and enter the position name.</p>
+                </div>
             </div>
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-        </form>
-    </div>
+        </div>
+
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="DepartmentID" class="form-label fw-semibold">Department</label>
+                    <select asp-for="DepartmentID"
+                            class="form-select"
+                            asp-items="ViewBag.Departments">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="DepartmentID" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label fw-semibold">Position name</label>
+                    <input asp-for="Name"
+                           class="form-control"
+                           placeholder="e.g., HR Manager"
+                           autocomplete="off" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-gold">
+                        Create Position
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </section>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

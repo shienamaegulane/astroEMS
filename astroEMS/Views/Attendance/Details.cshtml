@@ -1,53 +1,89 @@
 ﻿@model IEnumerable<astroEMS.Models.Attendance>
+
 @{
     ViewData["Title"] = "Attendance Details";
     var employee = ViewBag.Employee as astroEMS.Models.Employee;
 }
 
-<h3 class="mb-1"><i class="bi bi-calendar-check me-2"></i>Attendance Details</h3>
-<p class="text-muted mb-4">@employee?.FirstName @employee?.LastName (@employee?.EmployeeNumber) &bull; @ViewBag.StartDate – @ViewBag.EndDate</p>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Attendance</p>
+            <h1>Attendance Details</h1>
+            <p class="dashboard-intro-description">
+                @employee?.FirstName @employee?.LastName (@employee?.EmployeeNumber)
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-calendar-range" aria-hidden="true"></i>
+            @ViewBag.StartDate – @ViewBag.EndDate
+        </p>
+    </header>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Date</th>
-                    <th>Time In</th>
-                    <th>Lunch Out</th>
-                    <th>Lunch In</th>
-                    <th>Time Out</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var a in Model)
-                {
-                    <tr>
-                        <td class="ps-4">@a.AttendanceDate.ToString("dddd, MMM dd, yyyy")</td>
-                        <td>@(a.TimeIn.HasValue ? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.LunchOut.HasValue ? DateTime.Today.Add(a.LunchOut.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.LunchIn.HasValue ? DateTime.Today.Add(a.LunchIn.Value).ToString("h:mm tt") : "-")</td>
-                        <td>@(a.TimeOut.HasValue ? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
-                        <td>
-                            @{
-                                string cls = a.Status switch
-                                {
-                                    "Present" => "badge-active",
-                                    "Late" => "badge-late",
-                                    "Half Day" => "badge-halfday",
-                                    _ => "badge-absent"
-                                };
-                            }
-                            <span class="badge @cls">@a.Status</span>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div>
+        <a asp-action="Summary" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Back to Summary
+        </a>
     </div>
-</div>
 
-<a asp-action="Summary" class="btn btn-outline-secondary btn-sm mt-3">
-    <i class="bi bi-arrow-left"></i> Back to Summary
-</a>
+    <section class="card dashboard-panel" aria-labelledby="attendance-details-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                <div>
+                    <h2 id="attendance-details-heading">Daily records</h2>
+                    <p>Recorded times and status for each day in the period.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col" class="ps-4">Date</th>
+                        <th scope="col">Time In</th>
+                        <th scope="col">Lunch Out</th>
+                        <th scope="col">Lunch In</th>
+                        <th scope="col">Time Out</th>
+                        <th scope="col" class="pe-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="dashboard-empty py-5">
+                                No attendance records found for this period.
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-semibold">@a.AttendanceDate.ToString("dddd, MMM dd, yyyy")</td>
+                            <td>@(a.TimeIn.HasValue? DateTime.Today.Add(a.TimeIn.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.LunchOut.HasValue? DateTime.Today.Add(a.LunchOut.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.LunchIn.HasValue? DateTime.Today.Add(a.LunchIn.Value).ToString("h:mm tt") : "-")</td>
+                            <td>@(a.TimeOut.HasValue? DateTime.Today.Add(a.TimeOut.Value).ToString("h:mm tt") : "-")</td>
+                            <td class="pe-4">
+                                @{
+                                    string cls = a.Status switch
+                                    {
+                                        "Present" => "badge-active",
+                                        "Late" => "badge-late",
+                                        "Half Day" => "badge-halfday",
+                                        _ => "badge-absent"
+                                    };
+                                }
+                                <span class="badge @cls">@a.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

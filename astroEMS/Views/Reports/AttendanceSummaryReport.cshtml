@@ -3,44 +3,102 @@
     var summary = ViewBag.Summary as IEnumerable<dynamic>;
 }
 
-<h3 class="mb-4"><i class="bi bi-calendar-check me-2"></i>Attendance Summary Report</h3>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Reports</p>
+            <h1>Attendance Summary Report</h1>
+            <p class="dashboard-intro-description">
+                Review present, late, and absent counts for a selected date range.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+            Attendance report
+        </p>
+    </header>
 
-<div class="card mb-4">
-    <div class="card-body py-2">
-        <form method="get" class="d-flex gap-2 align-items-center">
-            <label class="small text-muted mb-0">From</label>
-            <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control form-control-sm" style="max-width:160px;" />
-            <label class="small text-muted mb-0">To</label>
-            <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control form-control-sm" style="max-width:160px;" />
-            <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-        </form>
-    </div>
-</div>
+    <section class="card dashboard-panel" aria-labelledby="attendance-filter-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-funnel" aria-hidden="true"></i>
+                <div>
+                    <h2 id="attendance-filter-heading">Date range</h2>
+                    <p>Choose the period shown in the report.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="get" class="d-flex flex-wrap gap-3 align-items-end">
+                <div>
+                    <label for="reportStartDate" class="form-label">From</label>
+                    <input id="reportStartDate"
+                           type="date"
+                           name="startDate"
+                           value="@ViewBag.StartDate"
+                           class="form-control" />
+                </div>
+                <div>
+                    <label for="reportEndDate" class="form-label">To</label>
+                    <input id="reportEndDate"
+                           type="date"
+                           name="endDate"
+                           value="@ViewBag.EndDate"
+                           class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search me-1" aria-hidden="true"></i>
+                    Filter
+                </button>
+            </form>
+        </div>
+    </section>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Employee</th>
-                    <th class="text-center">Present</th>
-                    <th class="text-center">Late</th>
-                    <th class="text-center">Absent</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var s in summary!)
-                {
+    <section class="card dashboard-panel" aria-labelledby="attendance-results-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-table" aria-hidden="true"></i>
+                <div>
+                    <h2 id="attendance-results-heading">Attendance results</h2>
+                    <p>Daily status counts grouped by employee.</p>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td class="ps-4">@s.Employee.FirstName @s.Employee.LastName</td>
-                        <td class="text-center"><span class="badge badge-active">@s.Present</span></td>
-                        <td class="text-center"><span class="badge badge-late">@s.Late</span></td>
-                        <td class="text-center"><span class="badge badge-absent">@s.Absent</span></td>
+                        <th scope="col" class="ps-4">Employee</th>
+                        <th scope="col" class="text-center">Present</th>
+                        <th scope="col" class="text-center">Late</th>
+                        <th scope="col" class="text-center pe-4">Absent</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var s in summary!)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-semibold">@s.Employee.FirstName @s.Employee.LastName</td>
+                            <td class="text-center">
+                                <span class="badge badge-active">@s.Present</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-late">@s.Late</span>
+                            </td>
+                            <td class="text-center pe-4">
+                                <span class="badge badge-absent">@s.Absent</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Back to Reports
+        </a>
     </div>
 </div>
-
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm mt-3">Back to Reports</a>

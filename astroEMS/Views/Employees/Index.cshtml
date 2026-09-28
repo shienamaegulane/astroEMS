@@ -3,104 +3,216 @@
 @{
     ViewData["Title"] = "Employees";
 }
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="mb-0"><i class="bi bi-people me-2"></i>Employees</h3>
-        <p class="text-muted mb-0">@Model.Count() total employee@(Model.Count() != 1 ? "s" : "")</p>
-    </div>
-    @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+
+<section class="dashboard-page">
+    @if (TempData["Success"] != null)
     {
-        <a asp-action="Create" class="btn btn-gold">
-            <i class="bi bi-plus-lg"></i> Add Employee
-        </a>
+        <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
-</div>
 
-<div class="card mb-4">
-    <div class="card-body py-2">
-        <form asp-action="Index" method="get" class="d-flex gap-2 align-items-center">
-            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
-                   class="form-control form-control-sm" placeholder="Search by name, department, position, employee no..." style="max-width: 350px;" />
-            <button type="submit" class="btn btn-sm btn-primary">
-                <i class="bi bi-search"></i> Search
-            </button>
-            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
-            </a>
-        </form>
-    </div>
-</div>
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Workforce directory</p>
+            <h1>Employees</h1>
+            <p class="dashboard-intro-description">
+                View and manage employee records in one place.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-people" aria-hidden="true"></i>
+            @Model.Count() total employee@(Model.Count() != 1 ? "s" : "")
+        </p>
+    </header>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color:#F5F7FA;">
-                <tr>
-                    <th class="ps-4">Employee</th>
-                    <th>Employee No.</th>
-                    <th>Department</th>
-                    <th>Position</th>
-                    <th>Date Hired</th>
-                    <th>Status</th>
-                    <th class="text-end pe-4">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+                <form asp-action="Index" method="get"
+                      class="d-flex flex-wrap align-items-end gap-2 flex-grow-1">
+                    <div class="flex-grow-1" style="max-width: 420px; min-width: 220px;">
+                        <label for="employee-search" class="form-label fw-semibold">Search employees</label>
+                        <input id="employee-search"
+                               type="search"
+                               name="searchString"
+                               value="@ViewData["CurrentFilter"]"
+                               class="form-control"
+                               placeholder="Name, department, position, or employee no." />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1" aria-hidden="true"></i>Search
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh
+                    </a>
+                </form>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HR"))
                 {
-                    <tr>
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width:38px;height:38px;background-color:#1B3B6F;color:white;font-size:0.8rem;font-weight:600;">
-                                    @item.FirstName[0]@item.LastName[0]
-                                </div>
-                                <div>
-                                    <div class="fw-semibold">@item.FirstName @item.LastName</div>
-                                    <div class="text-muted small">@item.Email</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>@item.EmployeeNumber</td>
-                        <td>@item.Department</td>
-                        <td>@item.Position</td>
-                        <td>@item.DateHired.ToString("MMM dd, yyyy")</td>
-                        <td>
-                            @{
-                                string badgeClass = item.EmploymentStatus switch
-                                {
-                                    "Active" => "badge-active",
-                                    "On Leave" => "badge-late",
-                                    _ => "badge-absent"
-                                };
-                            }
-                            <span class="badge @badgeClass">@item.EmploymentStatus</span>
-                        </td>
-                        <td class="text-end pe-4">
-                           
-                            @if (User.IsInRole("Admin") || User.IsInRole("HR"))
-                            {
-                                <a asp-action="Edit" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-primary" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-employeeid="@item.EmployeeID" class="btn btn-sm btn-outline-danger" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                                <a asp-controller="Documents" asp-action="Index" asp-route-employeeId="@item.EmployeeID" class="btn btn-sm btn-outline-secondary" title="Documents">
-                                    <i class="bi bi-folder2-open"></i>
-                                </a>
-                            }
-                        </td>
-                    </tr>
+                    <a asp-action="Create" class="btn btn-gold">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Employee
+                    </a>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
     </div>
-</div>
+
+    <section class="card dashboard-panel" aria-label="Employee directory">
+        <div class="card-header dashboard-panel-header">
+            <i class="bi bi-person-lines-fill" aria-hidden="true"></i>
+            <div>
+                <h2>Employee Directory</h2>
+                <p>Browse employee details and available actions.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="min-width: 900px;">
+                <thead>
+                    <tr>
+                        <th scope="col" class="ps-4">Employee</th>
+                        <th scope="col">Employee No.</th>
+                        <th scope="col">Department</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Date Hired</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="dashboard-stat-icon rounded-circle flex-shrink-0"
+                                          aria-hidden="true">
+                                        @item.FirstName[0]@item.LastName[0]
+                                    </span>
+                                    <div>
+                                        <div class="fw-semibold">@item.FirstName @item.LastName</div>
+                                        <div class="text-muted small">@item.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.EmployeeNumber</td>
+                            <td>@item.Department</td>
+                            <td>@item.Position</td>
+                            <td>@item.DateHired.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @{
+                                    string badgeClass = item.EmploymentStatus switch
+                                    {
+                                        "Active" => "badge-active",
+                                        "On Leave" => "badge-late",
+                                        _ => "badge-absent"
+                                    };
+                                }
+                                <span class="badge @badgeClass">@item.EmploymentStatus</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                @if (User.IsInRole("Admin") || User.IsInRole("HR"))
+                                {
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-action="Details"
+                                           asp-route-employeeid="@item.EmployeeID"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="View details for @item.FirstName @item.LastName"
+                                           aria-label="View details for @item.FirstName @item.LastName">
+                                            <i class="bi bi-eye" aria-hidden="true"></i>
+                                        </a>
+                                        <a asp-action="Edit"
+                                           asp-route-employeeid="@item.EmployeeID"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Edit @item.FirstName @item.LastName"
+                                           aria-label="Edit @item.FirstName @item.LastName">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteEmployee-@item.EmployeeID"
+                                                title="Delete @item.FirstName @item.LastName"
+                                                aria-label="Delete @item.FirstName @item.LastName">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                        <a asp-controller="Documents"
+                                           asp-action="Index"
+                                           asp-route-employeeId="@item.EmployeeID"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Documents for @item.FirstName @item.LastName"
+                                           aria-label="Documents for @item.FirstName @item.LastName">
+                                            <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="dashboard-empty">
+                                <i class="bi bi-people d-block mb-2" aria-hidden="true"></i>
+                                No employees found.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+@if (User.IsInRole("Admin") || User.IsInRole("HR"))
+{
+    @foreach (var item in Model)
+    {
+        <div class="modal fade"
+             id="deleteEmployee-@item.EmployeeID"
+             tabindex="-1"
+             aria-labelledby="deleteEmployeeTitle-@item.EmployeeID"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title fs-5" id="deleteEmployeeTitle-@item.EmployeeID">
+                            Delete Employee
+                        </h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2">
+                            Are you sure you want to delete
+                            <strong>@item.FirstName @item.LastName</strong>?
+                        </p>
+                        <p class="text-muted mb-0">
+                            Employee number: <strong>@item.EmployeeNumber</strong>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <form asp-controller="Employees"
+                              asp-action="Delete"
+                              asp-route-employeeid="@item.EmployeeID"
+                              method="post"
+                              asp-antiforgery="true"
+                              class="mb-0">
+                            <input type="hidden" name="employeeid" value="@item.EmployeeID" />
+                            <button type="submit" class="btn btn-danger">
+                                Delete Employee
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

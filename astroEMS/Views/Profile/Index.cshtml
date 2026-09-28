@@ -13,260 +13,393 @@
     double latePct = total > 0 ? (late * 100.0 / total) : 0;
 }
 
-<h2 class="mb-4">👤 Employee Profile</h2>
-
-<div class="row mb-4">
-    <div class="col-md-3 text-center">
-        <div class="photo-wrapper mx-auto">
-            @if (!string.IsNullOrEmpty(Model.ProfilePicture))
-            {
-                <img src="@Model.ProfilePicture" class="rounded-circle" style="width:110px;height:110px;object-fit:cover;" />
-            }
-            else
-            {
-                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
-                     style="width:110px; height:110px; color:white; font-size:1.8rem;">
-                    @Model.FirstName[0]@Model.LastName[0]
-                </div>
-            }
-
-            <button type="button" class="photo-edit-btn" data-bs-toggle="modal" data-bs-target="#photoModal" title="Change Photo">
-                <i class="bi bi-camera-fill"></i>
-            </button>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Employee account</p>
+            <h1>My Profile</h1>
+            <p class="dashboard-intro-description">
+                View your personal information, employment details, and attendance.
+            </p>
         </div>
-    </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
+            @Model.EmployeeNumber
+        </p>
+    </header>
 
-    <!-- Photo Upload Modal -->
-    <div class="modal fade" id="photoModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Profile Photo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    @if (TempData["Error"] != null)
-                    {
-                        <div class="alert alert-danger">@TempData["Error"]</div>
-                    }
-
-                    <ul class="nav nav-tabs mb-3 justify-content-center" id="photoTabs">
-                        <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#uploadTab" type="button">
-                                <i class="bi bi-upload"></i> Upload File
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#cameraTab" type="button" id="cameraTabBtn">
-                                <i class="bi bi-camera"></i> Use Camera
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <!-- Upload from file -->
-                        <div class="tab-pane fade show active" id="uploadTab">
-                            <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data">
-                                <input type="file" name="photo" accept="image/*" class="form-control mb-3" required />
-                                <button type="submit" class="btn btn-primary w-100">Upload Photo</button>
-                            </form>
-                        </div>
-
-                        <!-- Capture from camera -->
-                        <div class="tab-pane fade" id="cameraTab">
-                            <video id="cameraVideo" autoplay playsinline class="w-100 rounded mb-2" style="max-height:300px; background:#000;"></video>
-                            <canvas id="cameraCanvas" style="display:none;"></canvas>
-                            <img id="capturedPreview" style="display:none; max-height:300px;" class="w-100 rounded mb-2" />
-
-                            <div id="cameraError" class="alert alert-warning small" style="display:none;"></div>
-
-                            <div class="d-flex gap-2">
-                                <button type="button" id="captureBtn" class="btn btn-outline-primary flex-fill">
-                                    <i class="bi bi-camera"></i> Capture
-                                </button>
-                                <button type="button" id="retakeBtn" class="btn btn-outline-secondary flex-fill" style="display:none;">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Retake
-                                </button>
-                            </div>
-
-                            <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data" id="cameraUploadForm" class="mt-2">
-                                <input type="file" name="photo" id="cameraFileInput" style="display:none;" />
-                                <button type="submit" id="useCaptureBtn" class="btn btn-primary w-100" style="display:none;">
-                                    Use This Photo
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-9">
-        <h3 class="mb-0">@Model.FirstName @Model.LastName</h3>
-        <p class="text-muted">Employee ID: @Model.EmployeeNumber</p>
-    </div>
-</div>
-
-<div class="row">
- 
-    <div class="col-md-6">
-        <div class="card mb-3">
-            <div class="card-header"><strong>Personal Information</strong></div>
-            <div class="card-body">
-                <p><strong>Full Name:</strong> @Model.FirstName @Model.MiddleName @Model.LastName</p>
-                <p><strong>Gender:</strong> @Model.Gender</p>
-                <p><strong>Date of Birth:</strong> @Model.DateOfBirth?.ToString("MMMM dd, yyyy")</p>
-                <p><strong>Contact Number:</strong> @Model.ContactNumber</p>
-                <p><strong>Email Address:</strong> @Model.Email</p>
-                <p class="mb-0"><strong>Home Address:</strong> @Model.Address</p>
-            </div>
-        </div>
-
-        <div class="card mb-3">
-            <div class="card-header"><strong>Employment Information</strong></div>
-            <div class="card-body">
-                <p><strong>Department:</strong> @Model.Department</p>
-                <p><strong>Position:</strong> @Model.Position</p>
-                <p><strong>Employment Status:</strong> @Model.EmploymentStatus</p>
-                <p><strong>Employment Type:</strong> @Model.EmploymentType</p>
-                <p class="mb-0"><strong>Date Hired:</strong> @Model.DateHired.ToString("MMMM dd, yyyy")</p>
-            </div>
-        </div>
-
-        <div class="card mb-3">
-            <div class="card-header"><strong>Account Information</strong></div>
-            <div class="card-body">
-                <p><strong>Username:</strong> @(user?.Username ?? "N/A")</p>
-                <p><strong>User Role:</strong> @(user?.Role ?? "N/A")</p>
-                <p class="mb-0"><strong>Account Status:</strong> @(user != null && user.IsActive ? "Active" : "Inactive")</p>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="col-md-6">
-        <div class="card mb-3">
-            <div class="card-header"><strong>Attendance Information</strong></div>
-            <div class="card-body">
-                <p><strong>Work Schedule:</strong> @Model.WorkSchedule</p>
-                <p><strong>Time In:</strong> @(today?.TimeIn != null ? DateTime.Today.Add(today.TimeIn.Value).ToString("h:mm tt") : "—")</p>
-                <p><strong>Time Out:</strong> @(today?.TimeOut != null ? DateTime.Today.Add(today.TimeOut.Value).ToString("h:mm tt") : "—")</p>
-                <p class="mb-0">
-                    <strong>Today's Status:</strong>
-                    @if (today == null)
-                    {
-                        <span class="badge bg-secondary">No Record</span>
-                    }
-                    else
-                    {
-                        string tCls = today.Status switch { "Present" => "badge-active", "Late" => "badge-late", _ => "badge-absent" };
-                        <span class="badge @tCls">@today.Status</span>
-                    }
-                </p>
-            </div>
-        </div>
-
-        <div class="card mb-3">
-            <div class="card-header"><strong>Attendance Summary</strong></div>
-            <div class="card-body">
-                @if (total == 0)
+    <section class="card dashboard-panel" aria-labelledby="profile-name">
+        <div class="card-body d-flex flex-wrap align-items-center gap-4 p-4">
+            <div class="photo-wrapper">
+                @if (!string.IsNullOrEmpty(Model.ProfilePicture))
                 {
-                    <p class="text-muted mb-0">No attendance records yet.</p>
+                    <img src="@Model.ProfilePicture"
+                         alt="Profile photo of @Model.FirstName @Model.LastName"
+                         class="rounded-circle"
+                         style="width:110px;height:110px;object-fit:cover;" />
                 }
                 else
                 {
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="donut-chart" style="background: conic-gradient(
-                            #2E7D32 0% @presentPct.ToString("0.##")%,
-                            #F9A825 @presentPct.ToString("0.##")% @((presentPct + latePct).ToString("0.##"))%,
-                            #C62828 @((presentPct + latePct).ToString("0.##"))% 100%
-                            );">
-                            <div class="donut-center">@total</div>
-                        </div>
-                        <div>
-                            <p class="mb-1"><span class="dot" style="background:#2E7D32;"></span> Present: <strong>@present</strong></p>
-                            <p class="mb-1"><span class="dot" style="background:#F9A825;"></span> Late: <strong>@late</strong></p>
-                            <p class="mb-0"><span class="dot" style="background:#C62828;"></span> Absent: <strong>@absent</strong></p>
-                        </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         aria-label="Profile initials"
+                         style="width:110px;height:110px;background:#142143;color:white;font-size:1.8rem;font-weight:600;">
+                        @Model.FirstName[0]@Model.LastName[0]
                     </div>
                 }
+
+                <button type="button"
+                        class="photo-edit-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#photoModal"
+                        title="Change Photo"
+                        aria-label="Change profile photo">
+                    <i class="bi bi-camera-fill" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div>
+                <h2 id="profile-name" class="mb-1">@Model.FirstName @Model.LastName</h2>
+                <p class="text-muted mb-2">Employee ID: @Model.EmployeeNumber</p>
+                <span class="badge @(Model.EmploymentStatus == "Active" ? "badge-active" : "badge-late")">
+                    @Model.EmploymentStatus
+                </span>
             </div>
         </div>
+    </section>
 
-        <div class="card mb-3">
-            <div class="card-header"><strong>Document Information</strong></div>
-            <div class="card-body">
-                <div class="doc-info-row">
-                    <span class="doc-label">SSS Number</span>
-                    <span class="doc-value">@(string.IsNullOrEmpty(Model.SSSNumber) ? "—" : Model.SSSNumber)</span>
-                    @if (!string.IsNullOrEmpty(Model.SSSNumber))
-                    {
-                        <span class="badge badge-active doc-badge">Valid</span>
-                    }
-                    else
-                    {
-                        <span class="badge badge-absent doc-badge">Missing</span>
-                    }
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <section class="card dashboard-panel mb-4" aria-labelledby="personal-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                        <div>
+                            <h2 id="personal-heading">Personal information</h2>
+                            <p>Your contact and personal details.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="doc-info-row">
-                    <span class="doc-label">PhilHealth Number</span>
-                    <span class="doc-value">@(string.IsNullOrEmpty(Model.PhilHealthNumber) ? "—" : Model.PhilHealthNumber)</span>
-                    @if (!string.IsNullOrEmpty(Model.PhilHealthNumber))
-                    {
-                        <span class="badge badge-active doc-badge">Valid</span>
-                    }
-                    else
-                    {
-                        <span class="badge badge-absent doc-badge">Missing</span>
-                    }
-                </div>
-                <div class="doc-info-row">
-                    <span class="doc-label">Pag-IBIG Number</span>
-                    <span class="doc-value">@(string.IsNullOrEmpty(Model.PagIBIGNumber) ? "—" : Model.PagIBIGNumber)</span>
-                    @if (!string.IsNullOrEmpty(Model.PagIBIGNumber))
-                    {
-                        <span class="badge badge-active doc-badge">Valid</span>
-                    }
-                    else
-                    {
-                        <span class="badge badge-absent doc-badge">Missing</span>
-                    }
-                </div>
-                <div class="doc-info-row">
-                    <span class="doc-label">TIN Number</span>
-                    <span class="doc-value">@(string.IsNullOrEmpty(Model.TINNumber) ? "—" : Model.TINNumber)</span>
-                    @if (!string.IsNullOrEmpty(Model.TINNumber))
-                    {
-                        <span class="badge badge-active doc-badge">Valid</span>
-                    }
-                    else
-                    {
-                        <span class="badge badge-absent doc-badge">Missing</span>
-                    }
-                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5 text-muted fw-normal">Full name</dt>
+                        <dd class="col-sm-7">@Model.FirstName @Model.MiddleName @Model.LastName</dd>
 
-                <a asp-controller="Documents" asp-action="Index" class="btn btn-outline-primary btn-sm w-100 mt-3">
-                    View All Documents
-                </a>
+                        <dt class="col-sm-5 text-muted fw-normal">Gender</dt>
+                        <dd class="col-sm-7">@Model.Gender</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Date of birth</dt>
+                        <dd class="col-sm-7">@Model.DateOfBirth?.ToString("MMMM dd, yyyy")</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Contact number</dt>
+                        <dd class="col-sm-7">@Model.ContactNumber</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Email address</dt>
+                        <dd class="col-sm-7 text-break">@Model.Email</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Home address</dt>
+                        <dd class="col-sm-7 mb-0">@Model.Address</dd>
+                    </dl>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel mb-4" aria-labelledby="employment-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-briefcase" aria-hidden="true"></i>
+                        <div>
+                            <h2 id="employment-heading">Employment information</h2>
+                            <p>Your position and employment status.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5 text-muted fw-normal">Department</dt>
+                        <dd class="col-sm-7">@Model.Department</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Position</dt>
+                        <dd class="col-sm-7">@Model.Position</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Employment status</dt>
+                        <dd class="col-sm-7">@Model.EmploymentStatus</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Employment type</dt>
+                        <dd class="col-sm-7">@Model.EmploymentType</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Date hired</dt>
+                        <dd class="col-sm-7 mb-0">@Model.DateHired.ToString("MMMM dd, yyyy")</dd>
+                    </dl>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel mb-4" aria-labelledby="account-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-shield-check" aria-hidden="true"></i>
+                        <div>
+                            <h2 id="account-heading">Account information</h2>
+                            <p>Your system access details.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5 text-muted fw-normal">Username</dt>
+                        <dd class="col-sm-7">@(user?.Username ?? "N/A")</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">User role</dt>
+                        <dd class="col-sm-7">@(user?.Role ?? "N/A")</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Account status</dt>
+                        <dd class="col-sm-7 mb-0">@(user != null && user.IsActive ? "Active" : "Inactive")</dd>
+                    </dl>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="card dashboard-panel mb-4" aria-labelledby="attendance-info-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                        <div>
+                            <h2 id="attendance-info-heading">Today's attendance</h2>
+                            <p>Your schedule and latest time record.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5 text-muted fw-normal">Work schedule</dt>
+                        <dd class="col-sm-7">@Model.WorkSchedule</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Time in</dt>
+                        <dd class="col-sm-7">@(today?.TimeIn != null ? DateTime.Today.Add(today.TimeIn.Value).ToString("h:mm tt") : "—")</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Time out</dt>
+                        <dd class="col-sm-7">@(today?.TimeOut != null ? DateTime.Today.Add(today.TimeOut.Value).ToString("h:mm tt") : "—")</dd>
+
+                        <dt class="col-sm-5 text-muted fw-normal">Today's status</dt>
+                        <dd class="col-sm-7 mb-0">
+                            @if (today == null)
+                            {
+                                <span class="badge bg-secondary">No Record</span>
+                            }
+                            else
+                            {
+                                string tCls = today.Status switch { "Present" => "badge-active", "Late" => "badge-late", _ => "badge-absent" };
+                                <span class="badge @tCls">@today.Status</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </section>
+
+            <section class="card dashboard-panel mb-4" aria-labelledby="attendance-summary-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-pie-chart" aria-hidden="true"></i>
+                        <div>
+                            <h2 id="attendance-summary-heading">Attendance summary</h2>
+                            <p>Present, late, and absent records.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (total == 0)
+                    {
+                        <p class="text-muted mb-0">No attendance records yet.</p>
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="donut-chart" style="background: conic-gradient(
+                                    #2E7D32 0% @presentPct.ToString("0.##")%,
+                                    #F9A825 @presentPct.ToString("0.##")% @((presentPct + latePct).ToString("0.##"))%,
+                                    #C62828 @((presentPct + latePct).ToString("0.##"))% 100%
+                                    );">
+                                <div class="donut-center">@total</div>
+                            </div>
+                            <div>
+                                <p class="mb-1"><span class="dot" style="background:#2E7D32;"></span> Present: <strong>@present</strong></p>
+                                <p class="mb-1"><span class="dot" style="background:#F9A825;"></span> Late: <strong>@late</strong></p>
+                                <p class="mb-0"><span class="dot" style="background:#C62828;"></span> Absent: <strong>@absent</strong></p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="card dashboard-panel mb-4" aria-labelledby="documents-heading">
+                <div class="card-header">
+                    <div class="dashboard-panel-header">
+                        <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                        <div>
+                            <h2 id="documents-heading">Document information</h2>
+                            <p>Government ID details on record.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="doc-info-row">
+                        <span class="doc-label">SSS Number</span>
+                        <span class="doc-value">@(string.IsNullOrEmpty(Model.SSSNumber) ? "—" : Model.SSSNumber)</span>
+                        @if (!string.IsNullOrEmpty(Model.SSSNumber))
+                        {
+                            <span class="badge badge-active doc-badge">Valid</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-absent doc-badge">Missing</span>
+                        }
+                    </div>
+                    <div class="doc-info-row">
+                        <span class="doc-label">PhilHealth Number</span>
+                        <span class="doc-value">@(string.IsNullOrEmpty(Model.PhilHealthNumber) ? "—" : Model.PhilHealthNumber)</span>
+                        @if (!string.IsNullOrEmpty(Model.PhilHealthNumber))
+                        {
+                            <span class="badge badge-active doc-badge">Valid</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-absent doc-badge">Missing</span>
+                        }
+                    </div>
+                    <div class="doc-info-row">
+                        <span class="doc-label">Pag-IBIG Number</span>
+                        <span class="doc-value">@(string.IsNullOrEmpty(Model.PagIBIGNumber) ? "—" : Model.PagIBIGNumber)</span>
+                        @if (!string.IsNullOrEmpty(Model.PagIBIGNumber))
+                        {
+                            <span class="badge badge-active doc-badge">Valid</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-absent doc-badge">Missing</span>
+                        }
+                    </div>
+                    <div class="doc-info-row">
+                        <span class="doc-label">TIN Number</span>
+                        <span class="doc-value">@(string.IsNullOrEmpty(Model.TINNumber) ? "—" : Model.TINNumber)</span>
+                        @if (!string.IsNullOrEmpty(Model.TINNumber))
+                        {
+                            <span class="badge badge-active doc-badge">Valid</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-absent doc-badge">Missing</span>
+                        }
+                    </div>
+
+                    <a asp-controller="Documents" asp-action="Index"
+                       class="btn btn-outline-primary btn-sm w-100 mt-3">
+                        <i class="bi bi-folder2-open me-1" aria-hidden="true"></i>
+                        View All Documents
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="card dashboard-panel" aria-labelledby="profile-actions-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+                <div>
+                    <h2 id="profile-actions-heading">Quick actions</h2>
+                    <p>Manage your account and view related records.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body d-flex flex-wrap gap-2">
+            <a asp-controller="Employees" asp-action="Edit" asp-route-employeeid="@Model.EmployeeID"
+               class="btn btn-gold btn-sm">Edit Profile</a>
+            <a asp-controller="Account" asp-action="ChangePassword"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-key me-1" aria-hidden="true"></i> Change Password
+            </a>
+            <a asp-controller="COE" asp-action="MyRequests"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i> Request COE
+            </a>
+            <a asp-controller="Attendance" asp-action="MyRecord"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-calendar-check me-1" aria-hidden="true"></i> View Attendance Record
+            </a>
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">
+                Generate Attendance Report
+            </a>
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="photoModalTitle">Update Profile Photo</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+                }
+
+                <ul class="nav nav-tabs mb-3 justify-content-center" id="photoTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#uploadTab" type="button">
+                            <i class="bi bi-upload" aria-hidden="true"></i> Upload File
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#cameraTab" type="button" id="cameraTabBtn">
+                            <i class="bi bi-camera" aria-hidden="true"></i> Use Camera
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="uploadTab">
+                        <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data">
+                            <input type="file" name="photo" accept="image/*" class="form-control mb-3" required />
+                            <button type="submit" class="btn btn-primary w-100">Upload Photo</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="cameraTab">
+                        <video id="cameraVideo" autoplay playsinline class="w-100 rounded mb-2"
+                               style="max-height:300px; background:#000;"></video>
+                        <canvas id="cameraCanvas" style="display:none;"></canvas>
+                        <img id="capturedPreview" style="display:none; max-height:300px;"
+                             class="w-100 rounded mb-2" alt="Captured photo preview" />
+
+                        <div id="cameraError" class="alert alert-warning small" style="display:none;"></div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" id="captureBtn" class="btn btn-outline-primary flex-fill">
+                                <i class="bi bi-camera" aria-hidden="true"></i> Capture
+                            </button>
+                            <button type="button" id="retakeBtn" class="btn btn-outline-secondary flex-fill"
+                                    style="display:none;">
+                                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Retake
+                            </button>
+                        </div>
+
+                        <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data"
+                              id="cameraUploadForm" class="mt-2">
+                            <input type="file" name="photo" id="cameraFileInput" style="display:none;" />
+                            <button type="submit" id="useCaptureBtn" class="btn btn-primary w-100"
+                                    style="display:none;">
+                                Use This Photo
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="d-flex gap-2 mb-4 flex-wrap">
-    <a asp-controller="Employees" asp-action="Edit" asp-route-employeeid="@Model.EmployeeID" class="btn btn-primary btn-sm">Edit Profile</a>
-    <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-key"></i> Change Password
-    </a>
-    <a asp-controller="COE" asp-action="MyRequests" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-file-earmark-text"></i> Request COE
-    </a>
-    <a asp-controller="Attendance" asp-action="MyRecord" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-calendar-check"></i> View Attendance Record
-    </a>
-    <a href="#" class="btn btn-outline-secondary btn-sm disabled">Generate Attendance Report</a>
-</div>
- 
 @section Scripts {
     <script>
         let stream = null;

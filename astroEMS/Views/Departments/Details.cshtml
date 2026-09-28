@@ -1,14 +1,52 @@
 @model astroEMS.Models.Department
+
 @{
     ViewData["Title"] = "Department Details";
 }
 
-<h3 class="mb-4"><i class="bi bi-diagram-3 me-2"></i>Department Details</h3>
+<div class="dashboard-page">
+    <header class="dashboard-intro">
+        <div>
+            <p class="dashboard-intro-label">Organization</p>
+            <h1>Department Details</h1>
+            <p class="dashboard-intro-description">
+                View this department’s information.
+            </p>
+        </div>
+        <p class="dashboard-intro-date">
+            <i class="bi bi-diagram-3" aria-hidden="true"></i>
+            Departments
+        </p>
+    </header>
 
-<div class="card" style="max-width:450px;">
-    <div class="card-body">
-        <p><strong>Name:</strong> @Model.Name</p>
-    </div>
+    <section class="card dashboard-panel" style="max-width: 640px;" aria-labelledby="department-details-heading">
+        <div class="card-header">
+            <div class="dashboard-panel-header">
+                <i class="bi bi-building" aria-hidden="true"></i>
+                <div>
+                    <h2 id="department-details-heading">@Model.Name</h2>
+                    <p>Department record</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <dl class="row mb-4">
+                <dt class="col-sm-4 text-muted">Department name</dt>
+                <dd class="col-sm-8 fw-semibold mb-0">@Model.Name</dd>
+            </dl>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-action="Edit"
+                   asp-route-departmentid="@Model.DepartmentID"
+                   class="btn btn-gold">
+                    <i class="bi bi-pencil me-1" aria-hidden="true"></i>
+                    Edit Department
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Back to Departments
+                </a>
+            </div>
+        </div>
+    </section>
 </div>
-
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back to List</a>
